@@ -1,0 +1,30 @@
+version: "3.7"
+
+networks:
+    backend:
+
+services:
+    nginx:
+        build:
+            context: ./nginx
+        restart: always 
+        networks:
+            - backend
+        ports:
+            - 0.0.0.0:80:80
+        depends_on:
+            - restful-server
+            
+    restful-server:
+        image: b52fcf0561ff
+        restart: always
+        user: ${CURRENT_UID}
+        volumes:
+            - /home/toby/Desktop/mount:/code/data
+        networks:
+            - backend
+        expose:
+            - 8080
+        ports:
+            - 0.0.0.0:8080:8080
+
