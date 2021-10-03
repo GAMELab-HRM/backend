@@ -1,15 +1,8 @@
 from typing import Optional
-from pydantic import BaseModel
 from fastapi import FastAPI
-
+from HRMdata import HRMclass
 app = FastAPI()
-class HRMdata(BaseModel):
-    id: str # 身份證字號
-    vigor: list # contraction vigor
-    pattern: list # contraction pattern 
-    swallow_type: str # swallow type 
-    irp: float # IRP4
-    dci: float # DCI
+
     
 @app.get("/")
 def read_root():
@@ -25,14 +18,17 @@ def save():
 # return all patient's HRM data     
 @app.get("/api/v1/user/data")
 def get_user_data():
+    # /code/data/all_patient.csv (will mount in container )
     return "testing NGINX reverse proxy"
 
+# add new user's hrm data 
 @app.post("/api/v1/user/data")
-def add_data(data:HRMdata):
+def add_data(data:HRMclass):
     return data
 
-
-
+@app.put("/api/v1/user/data")
+def put_data(data:HRMclass):
+    return data 
 
 
 
