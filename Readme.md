@@ -28,4 +28,5 @@ docker push docker.pkg.github.com/gamelab-hrm/backend/$PROJECT_NAME:$VERSION
 ```
 
 ## Vscode docker extension (great~!)
-https://code.visualstudio.com/docs/remote/containers
+https://code.visualstudio.com/docs/remote/container
+test fork
