@@ -16,7 +16,7 @@ services:
             - restful-server
             
     restful-server:
-        image: 3724eb90ac11
+        image: 39f5bcf8fc62
         restart: always
         user: ${CURRENT_UID}
         volumes:

@@ -12,6 +12,7 @@ CURRENT_UID=$(id -u):$(id -g) docker-compose up
 ```
 
 * restful-server (fastAPI)
+    * usage `python3 -m uvicorn restful_server:app`
     * address `127.0.0.1:8080`
 * HTTP service(Nginx)
     * address `0.0.0.0:80`

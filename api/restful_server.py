@@ -1,6 +1,8 @@
 from typing import Optional
 from fastapi import FastAPI
-from HRMdata import HRMclass
+from models.HRMdata import HRMclass
+from models.HRMdata import CustomClass
+from utils import *
 app = FastAPI()
 
     
@@ -23,7 +25,9 @@ def get_user_data():
 
 # add new user's hrm data 
 @app.post("/api/v1/user/data")
-def add_data(data:HRMclass):
+def add_data(data:CustomClass):
+    process_10swallow(data.GT)
+    process_10swallow(data.MMS)
     return data
 
 @app.put("/api/v1/user/data")
