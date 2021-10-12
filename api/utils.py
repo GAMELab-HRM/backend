@@ -1,11 +1,27 @@
 import pandas as pd 
-import os, logging, datetime
+import os, logging, datetime, shutil, pytz
 
 def current_time():
-    return datetime.datetime.now()
+    tw = pytz.timezone("Asia/Taipei")
+    return " | " + str(tw.localize(datetime.datetime.now()))
     
-def save_csv(df, filename):
-    df.to_csv(os.path.join("./",filename), encoding="big5", index=False) 
+def check_folder_exist(path):
+    if not os.path.exists(path):
+        os.mkdir(path)
+        logging.info("Create folder: " + path)
+
+def save_file(path, files):
+    check_folder_exist(path)
+    # save file 
+    with open(path + files.filename, "wb+") as file_object:
+        shutil.copyfileobj(files.file, file_object)
+    logging.info("save " + files.filename + current_time())
+    
+
+def backup_csv(df, path, filename):
+    # check csv folder exist?
+    check_folder_exist(path)
+    df.to_csv(path+filename, encoding="big5", index=False) 
     logging.info("save " + filename + "\t" + str(current_time()))
 
 def process_10swallow(data):
@@ -13,6 +29,7 @@ def process_10swallow(data):
     data = data.dict()
     id = data["ID"]
     doctor_num = str(data["doctor"])
+    cc_result = str(data["cc_result"])
     columns_name = [
         "ID",
         "V",
@@ -36,7 +53,7 @@ def process_10swallow(data):
     columns_name_aug.append("cc_result")
     csv_data.append(data["cc_result"])
     df = pd.DataFrame([csv_data], columns=columns_name_aug)
-    print(df)
-    save_csv(df, id+"_"+doctor_num + ".csv")
+    filename = id+"_"+cc_result+"_"+doctor_num+"_10swallows.csv"
+    backup_csv(df, "./data/csv_backup/", filename)
 
     
