@@ -16,6 +16,10 @@ def get_rdc_data():
 def add_rdc_data():
     return {"msg":"add rdc data"}
 
+@router.put("/data")
+def update_rdc_data():
+    return {"msg":"rdc updated"}
+    
 @router.post("/file")
 def upload_rdc_file(request:Request, files: UploadFile = File(...)):
     save_file("./data/hiatal_hernia/", files)

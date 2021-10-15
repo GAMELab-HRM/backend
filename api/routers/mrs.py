@@ -16,6 +16,10 @@ def get_mrs_data():
 def add_mrs_data():
     return{"msg":"add mrs data"}
     
+@router.put("/data")
+def update_mrs_data():
+    return {"msg":"update mrs data"}
+
 @router.post("/file")
 def upload_mrs_file(request:Request, files: UploadFile = File(...)):
     save_file("./data/hiatal_hernia/", files)

@@ -1,6 +1,42 @@
 import pandas as pd 
-import os, logging, datetime, shutil, pytz
+import numpy as np
+import json, os, logging, datetime, shutil, pytz, pickle
 
+# for 10 wet swallows 
+def preprocess_csv(df):
+    df['檢查流程'] = df['檢查流程'].fillna('None')
+    column_names = df.columns
+    swallow_names = ["Wet swallow"+str(i+1) for i in range(10)]
+    sensor_num = 0 
+    for i in column_names:
+        if i[1] == "P":
+            sensor_num+=1
+    sensors = [" P"+str(i+1) for i in range(sensor_num)]
+    ans = list(np.where(df['檢查流程']!='None')[0])
+
+    swallow_index = []
+    swallow_range = []
+
+    for i in range(len(ans)):
+        test_name = df.iloc[ans[i]]['檢查流程']
+        if 'Wet swallow10' == test_name:
+            swallow_index.append(ans[i])
+            swallow_index.append(ans[i+1])
+            continue
+
+        if test_name in swallow_names:
+            swallow_index.append(ans[i])
+        
+    all_swallows_data = df[swallow_index[0]:swallow_index[10]][sensors].values
+    print(all_swallows_data.shape)
+    print(all_swallows_data[0])
+    temp = np.ones((20000,22))
+    
+    return {
+        #"data":str(pickle.dumps(all_swallows_data.tolist()))
+        "data":json.dumps(all_swallows_data.tolist())
+        #"data":json.dumps(temp.tolist())
+    }
 def current_time():
     tw = pytz.timezone("Asia/Taipei")
     return " | " + str(tw.localize(datetime.datetime.now()))

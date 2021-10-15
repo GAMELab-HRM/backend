@@ -21,6 +21,10 @@ def add_swallow_data(data:CustomClass):
     process_10swallow(data.MMS)
     return {"msg":"add new swallow data"}
 
+@router.put("/data")
+def update_swallow_data():
+    return {"msg":"updated"}
+    
 # upload 10 wet swallows csv 
 @router.post("/file")
 def upload_swallow_file(request:Request, files: UploadFile = File(...)):
