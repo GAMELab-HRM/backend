@@ -15,7 +15,10 @@ import pandas as pd
 app = FastAPI()
 
 # CORS 
-origins = ["*"]
+"""
+JUST FOR DEVELOPING
+"""
+origins = ["http://140.118.157.26:8080"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
