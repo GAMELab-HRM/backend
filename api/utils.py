@@ -28,15 +28,12 @@ def preprocess_csv(df):
             swallow_index.append(ans[i])
         
     all_swallows_data = df[swallow_index[0]:swallow_index[10]][sensors].values
-    print(all_swallows_data.shape)
-    print(all_swallows_data[0])
-    temp = np.ones((20000,22))
-    
-    return {
-        #"data":str(pickle.dumps(all_swallows_data.tolist()))
-        "data":json.dumps(all_swallows_data.tolist())
-        #"data":json.dumps(temp.tolist())
-    }
+    """
+    TODO:
+        這邊的swallow_index要轉換成以0開始
+    """
+    return json.dumps(all_swallows_data.tolist()), swallow_index[:-1], sensor_num
+
 def current_time():
     tw = pytz.timezone("Asia/Taipei")
     return " | " + str(tw.localize(datetime.datetime.now()))

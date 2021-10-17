@@ -1,8 +1,11 @@
 from fastapi import APIRouter 
 from fastapi import Request, Form, File ,UploadFile
-from utils import save_file, process_10swallow
+from utils import save_file, process_10swallow, preprocess_csv
 from models.HRMdata import CustomClass, HRMclass
+from models.Rawdata import WsData 
+from io import StringIO
 import shutil
+import pandas as pd 
 
 
 router = APIRouter(
@@ -26,13 +29,25 @@ def update_swallow_data():
     return {"msg":"updated"}
     
 # upload 10 wet swallows csv 
-@router.post("/file")
+@router.post("/file", response_model = WsData)
 def upload_swallow_file(request:Request, files: UploadFile = File(...)):
+
+    """
+    TODO:
+        check raw.csv already in Database ?
+    """
+    
+    df = pd.read_csv(StringIO(str(files.file.read(), 'big5')), encoding='big5', skiprows=6)
+    filename = files.filename
+    raw_data_string, swallow_index, sensor_num = preprocess_csv(df)
     save_file("./data/wet_swallows/", files)
-    return {
-        "file size": 0,
-        "file name": files.filename
+
+    return{
+        "filename": filename,
+        "raw": raw_data_string,
+        "index": swallow_index,
+        "sensors": sensor_num
     }
-  
+
 
 
