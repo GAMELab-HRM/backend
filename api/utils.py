@@ -32,7 +32,13 @@ def preprocess_csv(df):
     TODO:
         這邊的swallow_index要轉換成以0開始
     """
-    return json.dumps(all_swallows_data.tolist()), swallow_index[:-1], sensor_num
+    retv = []
+    temp = np.transpose(all_swallows_data)
+    temp = temp.tolist()
+    # for i in range(len(temp)-1,-1,-1):
+    #     retv.append(temp[i])
+    
+    return json.dumps(temp), swallow_index[:-1], sensor_num
 
 def current_time():
     tw = pytz.timezone("Asia/Taipei")
