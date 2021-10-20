@@ -5,6 +5,7 @@ from models.HRMdata import HRMclass
 from models.HRMdata import CustomClass
 from models.Person import Persontest
 from models.Rawdata import RawDataclass
+from models.Rawdata import WsData 
 from io import StringIO
 from routers import hiatal, swallows, mrs, rdc
 from utils import *
@@ -42,6 +43,28 @@ def testing(data:Persontest):
     print(data)
     return {"msg":"testing is ok "}
     
+@app.get("/demo", response_model = WsData)
+def demo():
+    df = pd.read_csv("./1375-normal.CSV")
+    filename = "1375-normal.CSV"
+    raw_data_string, swallow_index, sensor_num = preprocess_csv(df)
+    return{
+        "filename": filename,
+        "raw": raw_data_string,
+        "index": swallow_index,
+        "sensors": sensor_num
+    }
+@app.get("/demo2", response_model = WsData)
+def demo2():
+    df = pd.read_csv("./2349-normal.CSV")
+    filename = "2349-normal.CSV"
+    raw_data_string, swallow_index, sensor_num = preprocess_csv(df)
+    return{
+        "filename": filename,
+        "raw": raw_data_string,
+        "index": swallow_index,
+        "sensors": sensor_num
+    }
 
 @app.post("/file", response_model=RawDataclass)
 def test_post(request:Request, files: UploadFile = File(...)):

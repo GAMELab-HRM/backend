@@ -4,7 +4,7 @@ from utils import save_file, process_10swallow, preprocess_csv
 from models.HRMdata import CustomClass, HRMclass
 from models.Rawdata import WsData 
 from io import StringIO
-import shutil
+import shutil, copy
 import pandas as pd 
 
 
@@ -36,11 +36,11 @@ def upload_swallow_file(request:Request, files: UploadFile = File(...)):
     TODO:
         check raw.csv already in Database ?
     """
-    
+    # temp_file = copy.deepcopy(files)
     df = pd.read_csv(StringIO(str(files.file.read(), 'big5')), encoding='big5', skiprows=6)
     filename = files.filename
     raw_data_string, swallow_index, sensor_num = preprocess_csv(df)
-    save_file("./data/wet_swallows/", files)
+    save_file("./data/wet_swallows/", filename, df)
 
     return{
         "filename": filename,

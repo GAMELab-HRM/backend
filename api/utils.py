@@ -49,12 +49,14 @@ def check_folder_exist(path):
         os.mkdir(path)
         logging.info("Create folder: " + path)
 
-def save_file(path, files):
+def save_file(path, filename, df):
     check_folder_exist(path)
+    
     # save file 
-    with open(path + files.filename, "wb+") as file_object:
-        shutil.copyfileobj(files.file, file_object)
-    logging.info("save " + files.filename + current_time())
+    # with open(path + files.filename, "wb+") as file_object:
+    #     shutil.copyfileobj(files.file, file_object)
+    df.to_csv(path+filename)
+    logging.info("save " + filename + current_time())
     
 
 def backup_csv(df, path, filename):
