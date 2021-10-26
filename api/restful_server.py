@@ -1,5 +1,7 @@
 from typing import Optional
 from fastapi import FastAPI, Request, Form, File ,UploadFile
+from fastapi_sqlalchemy import DBSessionMiddleware
+from fastapi_sqlalchemy import db 
 from fastapi.middleware.cors import CORSMiddleware
 from models.HRMdata import HRMclass
 from models.HRMdata import CustomClass
@@ -7,11 +9,14 @@ from models.Person import Persontest
 from models.Rawdata import RawDataclass
 from models.Rawdata import WsData 
 from io import StringIO
-from routers import hiatal, swallows, mrs, rdc
+from routers import hiatal, swallows, mrs, rdc, patient
 from utils import *
 import shutil
 import pandas as pd 
 
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 # create app instance 
 app = FastAPI()
 
@@ -27,12 +32,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+#app.add_middleware(DBSessionMiddleware, db_url="postgresql://postgres:password@127.0.0.1:5432/postgres")
 
+engine = create_engine("postgresql://postgres:password@127.0.0.1:5432/postgres")
+print(engine.table_names())
 # FastAPI router 
 app.include_router(hiatal.router)
 app.include_router(swallows.router)
 app.include_router(mrs.router)
 app.include_router(rdc.router)
+app.include_router(patient.router)
     
 @app.get("/")
 def read_root():
