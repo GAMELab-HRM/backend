@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session 
 from db_model import models 
-from models import Patient, Person, HRMdata, Rawdata 
+from models import Patient, HRMdata, Rawdata 
 from uuid import UUID, uuid4 
 
 def get_patients(db: Session, skip: int=0,):

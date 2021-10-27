@@ -5,7 +5,6 @@ from fastapi_sqlalchemy import db
 from fastapi.middleware.cors import CORSMiddleware
 from models.HRMdata import HRMclass
 from models.HRMdata import CustomClass
-from models.Person import Persontest
 from models.Rawdata import RawDataclass
 from models.Rawdata import WsData 
 from io import StringIO
@@ -13,7 +12,7 @@ from routers import hiatal, swallows, mrs, rdc, patient
 from utils import *
 import shutil
 import pandas as pd 
-
+from typing import List 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -46,11 +45,6 @@ app.include_router(patient.router)
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
-
-@app.post("/test")
-def testing(data:Persontest):
-    print(data)
-    return {"msg":"testing is ok "}
     
 @app.get("/demo", response_model = WsData)
 def demo():
@@ -75,16 +69,21 @@ def demo2():
         "sensors": sensor_num
     }
 
-@app.post("/file", response_model=RawDataclass)
-def test_post(request:Request, files: UploadFile = File(...)):
-    df = pd.read_csv(StringIO(str(files.file.read(), 'big5')), encoding='big5', skiprows=6)
+@app.post("/file")
+def test_multiple_file_upload(request:Request, files: List[UploadFile] = File(...)):
 
-    print(df.head())
+    """
+    TODO:
+        check raw.csv already in Database ?
+    """
+    for f in files:
+        df = pd.read_csv(StringIO(str(f.file.read(), 'big5')), encoding='big5', skiprows=6)
+        filename = f.filename 
+        print(filename)
+        raw_data_string, swallow_index, sensor_num = preprocess_csv(df)
+        save_file("./data/wet_swallows/", filename, df)
 
-    ans = preprocess_csv(df)
-    return ans
-    # return {
-    #     "status":"demoing",
-    #     "file size": 0,
-    #     "file name": files.filename
-    # }
+
+    return{
+        "msg":"ok"
+    }

@@ -38,6 +38,7 @@ def upload_swallow_file(request:Request, files: UploadFile = File(...)):
     """
     # temp_file = copy.deepcopy(files)
     df = pd.read_csv(StringIO(str(files.file.read(), 'big5')), encoding='big5', skiprows=6)
+    print(df.head())
     filename = files.filename
     raw_data_string, swallow_index, sensor_num = preprocess_csv(df)
     save_file("./data/wet_swallows/", filename, df)
