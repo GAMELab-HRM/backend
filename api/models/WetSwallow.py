@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 Response or Request format 
 '''
 class WetSwallowBase(BaseModel):
-    id: UUID = Field(default_factory=uuid4)
+    record_id: UUID = Field(default_factory=uuid4)
 
 class WetSwallowCreate(WetSwallowBase):
     vigors: Optional[List]

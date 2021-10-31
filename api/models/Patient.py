@@ -9,7 +9,7 @@ class PatientBase(BaseModel):
     patient_id: str
 
 class PatientCreate(PatientBase):
-    id: UUID = Field(default_factory=uuid4)
+    record_id: UUID = Field(default_factory=uuid4)
     sensor_num:int 
 
 class PatientRow(PatientBase):

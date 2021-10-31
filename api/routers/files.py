@@ -4,8 +4,8 @@ from utils import save_file, process_10swallow, preprocess_csv
 from models.Rawdata import WsData 
 from io import StringIO
 from db_model.database import SessionLocal, engine # important
-from models import Patient, WetSwallow
-import shutil, copy, uuid
+from models import Patient, WetSwallow, Rawdata, TimeRecord
+import shutil, copy, uuid, datetime
 import pandas as pd 
 import crud 
 
@@ -42,9 +42,11 @@ def upload_swallow_file(request:Request, files: UploadFile = File(...), db: Sess
     # raw_data_string, swallow_index, sensor_num = preprocess_csv(df)
     # save_file("./data/", filename, df)
 
-    id = uuid.uuid4()
-    patient_id = "A123456789"
-    sensor_num = 25 
+    record_id = uuid.uuid4()
+    patient_id = "B122977777"
+    sensor_num = 19
+    filename = "7777-normal.csv"
+    now_time = datetime.datetime.now()
 
 
     # INSERT INTO patient_info table;
@@ -52,14 +54,22 @@ def upload_swallow_file(request:Request, files: UploadFile = File(...), db: Sess
     TODO:
         check this patient already in Database ?
     """
-    db_patient = crud.create_patient(db, Patient.PatientCreate(patient_id=patient_id, id=id, sensor_num=sensor_num))
+    db_patient = crud.create_patient(db, Patient.PatientCreate(patient_id=patient_id, record_id=record_id, sensor_num=sensor_num))
     print(db_patient.patient_id)
-    # INSERT INTO raw_data table 
+
+    # INSERT INTO Time_Record table;
+    db_timerecord = crud.create_timerecord(db, TimeRecord.TimeRecordCreate(record_id=record_id, last_update=now_time, doctor_id=0))
+    db_timerecord = crud.create_timerecord(db, TimeRecord.TimeRecordCreate(record_id=record_id, last_update=now_time, doctor_id=1))
+    db_timerecord = crud.create_timerecord(db, TimeRecord.TimeRecordCreate(record_id=record_id, last_update=now_time, doctor_id=-1))
+
+    # INSERT INTO raw_data table
+    db_rawdata = crud.create_rawdata(db, Rawdata.RawDataCreate(filename=filename, record_id=record_id))
+    print(db_rawdata)
 
     # INSERT INTO ws10 with doctor_id = [0,1,-1] 
-    db_ws10 = crud.create_ws10(db, WetSwallow.WetSwallowCreate(id=id, doctor_id=0))
-    db_ws10 = crud.create_ws10(db, WetSwallow.WetSwallowCreate(id=id, doctor_id=1))
-    db_ws10 = crud.create_ws10(db, WetSwallow.WetSwallowCreate(id=id, doctor_id=-1))
+    db_ws10 = crud.create_ws10(db, WetSwallow.WetSwallowCreate(record_id=record_id, doctor_id=0))
+    db_ws10 = crud.create_ws10(db, WetSwallow.WetSwallowCreate(record_id=record_id, doctor_id=1))
+    db_ws10 = crud.create_ws10(db, WetSwallow.WetSwallowCreate(record_id=record_id, doctor_id=-1))
 
 
     return{
