@@ -2,9 +2,9 @@
 /api/data/csv_backup
 /api/data/hiatal_hernia
 /api/data/wet_swallows
-/api/__pycache__
-/api/routers/__pycache__
-/api/models/__pycache__
-/api/__pycache__
 /api/*.CSV
 /api/.env
+/api/data/*.CSV
+__pycache__/
+/api/db_model/__pycache__
+

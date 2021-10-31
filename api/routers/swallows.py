@@ -1,9 +1,10 @@
 from fastapi import APIRouter 
 from fastapi import Request, Form, File ,UploadFile
 from utils import save_file, process_10swallow, preprocess_csv
-from models.HRMdata import CustomClass, HRMclass
+from models.WetSwallow import WetSwallowCreate
 from models.Rawdata import WsData 
 from io import StringIO
+import crud
 import shutil, copy
 import pandas as pd 
 
@@ -19,7 +20,7 @@ def get_swallow_data():
     return{"msg":"Hello swallow datas"}
 
 @router.post("/data")
-def add_swallow_data(data:CustomClass):
+def add_swallow_data(data):
     process_10swallow(data.GT)
     process_10swallow(data.MMS)
     return {"msg":"add new swallow data"}
@@ -28,27 +29,8 @@ def add_swallow_data(data:CustomClass):
 def update_swallow_data():
     return {"msg":"updated"}
     
-# upload 10 wet swallows csv 
-@router.post("/file", response_model = WsData)
-def upload_swallow_file(request:Request, files: UploadFile = File(...)):
 
-    """
-    TODO:
-        check raw.csv already in Database ?
-    """
-    # temp_file = copy.deepcopy(files)
-    df = pd.read_csv(StringIO(str(files.file.read(), 'big5')), encoding='big5', skiprows=6)
-    print(df.head())
-    filename = files.filename
-    raw_data_string, swallow_index, sensor_num = preprocess_csv(df)
-    save_file("./data/wet_swallows/", filename, df)
-
-    return{
-        "filename": filename,
-        "raw": raw_data_string,
-        "index": swallow_index,
-        "sensors": sensor_num
-    }
-
-
-
+@router.post("/")
+def create_swallow(data:WetSwallowCreate):
+    crud.create_ws10(data)
+    return {"msg":"create swallow data "}
