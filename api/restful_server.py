@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from models.Rawdata import RawDataclass
 from models.Rawdata import WsData 
 from io import StringIO
-from routers import hiatal, swallows, mrs, rdc, patient, files
+from routers import hiatal, swallows, mrs, rdc, patient, files, table
 from utils import *
 import shutil
 import pandas as pd 
@@ -41,6 +41,7 @@ app.include_router(mrs.router)
 app.include_router(rdc.router)
 app.include_router(patient.router)
 app.include_router(files.router)
+app.include_router(table.router)
 
     
 @app.get("/")

@@ -1,5 +1,6 @@
 from fastapi import APIRouter 
 from fastapi import Request, Form, File ,UploadFile, Depends
+from typing import List
 from utils import save_file
 import shutil
 import crud 
@@ -18,7 +19,7 @@ def get_db():
     finally:
         db.close()
 
-@router.get("/")
+@router.get("/", response_model=List[Patient.PatientObject])
 def get_patients_data(skip: int = 0, db: Session = Depends(get_db)):
     patients = crud.get_patients(db, skip=skip)
     return patients

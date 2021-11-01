@@ -20,3 +20,10 @@ class PatientRow(PatientBase):
     hiatal_hernia_result: str
     rip_result: str
     last_update: str
+
+class PatientObject(PatientBase):
+    record_id: UUID = Field(default_factory=uuid4)
+    sensor_num: int
+    
+    class Config:
+        orm_mode = True
