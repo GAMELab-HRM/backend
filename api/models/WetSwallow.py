@@ -18,3 +18,31 @@ class WetSwallowCreate(WetSwallowBase):
     doctor_id: int
     pressure_max: Optional[int]
     pressure_min: Optional[int] 
+
+# Come from FrontEnd
+class WetSwallowUpdate(WetSwallowBase):
+    vigors: List
+    patterns: List 
+    dcis: List 
+    swallow_types: List 
+    irp4s: List 
+    dls: List 
+    doctor_id: int 
+    ws_result: str 
+    pressure_max: Optional[int]
+    pressure_min: Optional[int] 
+
+class WetSwallowGet(WetSwallowBase):
+    doctor_id: int
+
+class WetSwallowGetResponse(WetSwallowBase):
+    vigors: List
+    patterns: List 
+    dcis: List 
+    swallow_types: List 
+    irp4s: List 
+    dls: List 
+    doctor_id: int 
+    ws_result: str = None 
+    pressure_max: Optional[int]
+    pressure_min: Optional[int] 

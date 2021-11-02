@@ -5,9 +5,9 @@ from models.Rawdata import WsData
 from io import StringIO
 from db_model.database import SessionLocal, engine # important
 from models import Patient, WetSwallow, Rawdata, TimeRecord, MRS, HiatalHernia
-import shutil, copy, uuid, datetime
+import shutil, copy, uuid, datetime, crud, pickle
 import pandas as pd 
-import crud 
+
 
 router = APIRouter(
     prefix="/api/v1/files",
@@ -37,9 +37,9 @@ def upload_swallow_file(request:Request, files: UploadFile = File(...), db: Sess
     # save_file("./data/", filename, df)
 
     record_id = uuid.uuid4()
-    patient_id = "A122975555"
-    sensor_num = 19
-    filename = "5555-normal.csv"
+    patient_id = "A122973323"
+    sensor_num = 20
+    filename = "3323-normal.csv"
     now_time = datetime.datetime.now()
 
 
@@ -55,9 +55,12 @@ def upload_swallow_file(request:Request, files: UploadFile = File(...), db: Sess
     db_rawdata = crud.create_rawdata(db, Rawdata.RawDataCreate(filename=filename, record_id=record_id))
 
     # INSERT INTO ws10 with doctor_id = [0,1,-1] 
-    db_ws10 = crud.create_ws10(db, WetSwallow.WetSwallowCreate(record_id=record_id, doctor_id=0))
-    db_ws10 = crud.create_ws10(db, WetSwallow.WetSwallowCreate(record_id=record_id, doctor_id=1))
-    db_ws10 = crud.create_ws10(db, WetSwallow.WetSwallowCreate(record_id=record_id, doctor_id=-1))
+    temp = ["" for i in range(10)]
+    for i in [0, 1, -1]:
+        db_ws10 = crud.create_ws10(db, WetSwallow.WetSwallowCreate(record_id=record_id, vigors=temp, patterns=temp, dcis=temp, swallow_types=temp, irp4s=temp, dls=temp, doctor_id=i))
+    # db_ws10 = crud.create_ws10(db, WetSwallow.WetSwallowCreate(record_id=record_id, doctor_id=0))
+    # db_ws10 = crud.create_ws10(db, WetSwallow.WetSwallowCreate(record_id=record_id, doctor_id=1))
+    # db_ws10 = crud.create_ws10(db, WetSwallow.WetSwallowCreate(record_id=record_id, doctor_id=-1))
 
     # INSERT INTO MRS with doctor_id = [0,1,-1]
     db_mrs = crud.create_mrs(db, MRS.MrsCreate(record_id=record_id, doctor_id=0))

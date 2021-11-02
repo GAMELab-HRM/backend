@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 import db_model.models as dbmodels 
 from models import Patient, Rawdata, WetSwallow, TimeRecord, MRS, HiatalHernia
 from uuid import UUID, uuid4 
-
+import pickle
 """
 CRUD for raw data 
 """
@@ -18,18 +18,10 @@ CRUD for patient
 """
 def get_patients(db: Session, skip: int=0,):
     ans = db.query(dbmodels.Patient_info).offset(skip).all()
-    print(ans[0].ws_data)
-    print(ans[0].mrs_data)
-    print(ans[0].hh_data)
-    # print(ans)
-    # print(ans[0].record_id)
-    # print(ans[0].patient_id)
-    # print(ans[0].ws_data)
-    # temp = ans[0].rawdata
-    # print(temp)
-    # print(temp[0].filename)
     return ans
 
+def get_patient(): # get one patient by record_id & doctor_id
+    pass
 def create_patient(db: Session, info: Patient.PatientCreate):
     db_patient = dbmodels.Patient_info(record_id=info.record_id, patient_id=info.patient_id, sensor_num=info.sensor_num)
     db.add(db_patient)
@@ -40,12 +32,31 @@ def create_patient(db: Session, info: Patient.PatientCreate):
 """
 CRUD for 10 wet swallows 
 """
-def get_ws10(db: Session):
-    pass 
-def update_ws10(db: Session):
-    pass 
+def get_ws10(db: Session, ws_info:WetSwallow.WetSwallowGet):
+    ans = db.query(dbmodels.Wet_swallows_10).filter(
+        (dbmodels.Wet_swallows_10.record_id==ws_info.record_id) & (dbmodels.Wet_swallows_10.doctor_id==ws_info.doctor_id)
+    ).all()
+    return ans
+
+def update_ws10(db: Session, data):
+    updated_ws10 = db.query(dbmodels.Wet_swallows_10).filter(
+        (dbmodels.Wet_swallows_10.record_id==data["record_id"]) & (dbmodels.Wet_swallows_10.doctor_id==data["doctor_id"])
+    ).update(data)
+    db.commit()
+    db.flush()
+    return updated_ws10
+
 def create_ws10(db: Session, ws_data:WetSwallow.WetSwallowCreate):
-    db_ws10 = dbmodels.Wet_swallows_10(record_id=ws_data.record_id, doctor_id=ws_data.doctor_id)
+    db_ws10 = dbmodels.Wet_swallows_10(
+        record_id=ws_data.record_id, 
+        doctor_id=ws_data.doctor_id,
+        vigors=pickle.dumps(ws_data.vigors),
+        patterns=pickle.dumps(ws_data.patterns),
+        dcis=pickle.dumps(ws_data.dcis),
+        swallow_types=pickle.dumps(ws_data.swallow_types),
+        irp4s=pickle.dumps(ws_data.irp4s),
+        dls=pickle.dumps(ws_data.dls)
+    )
     db.add(db_ws10)
     db.commit()
     db.refresh(db_ws10)
