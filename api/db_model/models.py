@@ -1,11 +1,11 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, LargeBinary , DateTime, Float
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship 
-import uuid, datetime
+import uuid, datetime, pickle
 from db_model.database import Base 
 
 # our database table format 
-
+ws_temp = pickle.dumps([""  for i in range(10)])
 class Patient_info(Base):
     __tablename__ = "patient_info"
     record_id = Column(UUID(as_uuid=True), primary_key=True, unique=True, nullable=False, default=uuid.uuid4)
@@ -33,13 +33,13 @@ class Wet_swallows_10(Base):
     index = Column(Integer, primary_key=True)
     record_id = Column(UUID(as_uuid=True), ForeignKey("patient_info.record_id"), nullable=False, default=uuid.uuid4)
     doctor_id = Column(Integer, ForeignKey("doctor_info.doctor_id"), nullable=False)
-    vigors = Column(LargeBinary)
-    patterns = Column(LargeBinary)
-    dcis = Column(LargeBinary)
-    swallow_types = Column(LargeBinary)
-    ws_result = Column(String)
-    irp4s = Column(LargeBinary)
-    dls = Column(LargeBinary)
+    vigors = Column(LargeBinary, default=ws_temp)
+    patterns = Column(LargeBinary, default=ws_temp)
+    dcis = Column(LargeBinary, default=ws_temp)
+    swallow_types = Column(LargeBinary, default=ws_temp)
+    ws_result = Column(String, default="")
+    irp4s = Column(LargeBinary, default=ws_temp)
+    dls = Column(LargeBinary, default=ws_temp)
     pressure_max = Column(Integer)
     pressure_min = Column(Integer)
 

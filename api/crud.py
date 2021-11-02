@@ -50,12 +50,6 @@ def create_ws10(db: Session, ws_data:WetSwallow.WetSwallowCreate):
     db_ws10 = dbmodels.Wet_swallows_10(
         record_id=ws_data.record_id, 
         doctor_id=ws_data.doctor_id,
-        vigors=pickle.dumps(ws_data.vigors),
-        patterns=pickle.dumps(ws_data.patterns),
-        dcis=pickle.dumps(ws_data.dcis),
-        swallow_types=pickle.dumps(ws_data.swallow_types),
-        irp4s=pickle.dumps(ws_data.irp4s),
-        dls=pickle.dumps(ws_data.dls)
     )
     db.add(db_ws10)
     db.commit()
