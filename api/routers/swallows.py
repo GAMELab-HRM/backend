@@ -47,13 +47,14 @@ def add_swallow_data(data):
 @router.put("/data")
 def update_swallow_data(ws_update_info:WetSwallow.WetSwallowUpdate, db: Session = Depends(get_db)):
     ws_update_info = ws_update_info.dict()
+    # 轉換成字典
+    print(ws_update_info)
     ws_update_info["vigors"] = pickle.dumps(ws_update_info["vigors"])
     ws_update_info["patterns"] = pickle.dumps(ws_update_info["patterns"])
     ws_update_info["dcis"] = pickle.dumps(ws_update_info["dcis"])
     ws_update_info["swallow_types"] = pickle.dumps(ws_update_info["swallow_types"])
     ws_update_info["irp4s"] = pickle.dumps(ws_update_info["irp4s"])
     ws_update_info["dls"] = pickle.dumps(ws_update_info["dls"])
-    print(ws_update_info)
     retv = crud.update_ws10(db, ws_update_info)
     # crud update swallow 
     return retv

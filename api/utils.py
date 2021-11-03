@@ -55,7 +55,7 @@ def save_file(path, filename, df):
     # save file 
     # with open(path + files.filename, "wb+") as file_object:
     #     shutil.copyfileobj(files.file, file_object)
-    df.to_csv(path+filename)
+    df.to_csv(path+filename, index=False, encoding='big5')
     logging.info("save " + filename + current_time())
     
 

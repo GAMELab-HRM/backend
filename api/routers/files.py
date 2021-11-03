@@ -31,15 +31,20 @@ def upload_swallow_file(request:Request, files: UploadFile = File(...), db: Sess
         check raw.csv already in Database ?
     """
     # save csv file 
-    # df = pd.read_csv(StringIO(str(files.file.read(), 'big5')), encoding='big5', skiprows=6)
-    # filename = files.filename
-    # raw_data_string, swallow_index, sensor_num = preprocess_csv(df)
-    # save_file("./data/", filename, df)
+    df = pd.read_csv(StringIO(str(files.file.read(), 'big5')), encoding='big5', header=None)
+    new_df, new_df.columns = df[7:], df.iloc[6]
+    save_df, save_df.columns = df[1:], df.iloc[0]
+
+    filename = files.filename
+    patient_id = str(df.loc[0,1])
+    ws_data_string, swallow_index, sensor_num = preprocess_csv(new_df)
+    save_file("./data/basic_test/", filename, save_df) # 儲存助理上傳的csv 
+
 
     record_id = uuid.uuid4()
-    patient_id = "D122974422"
-    sensor_num = 20
-    filename = "4422-normal.csv"
+    #patient_id = "D122974422"
+    #sensor_num = 20
+    #filename = "4422-normal.csv"
     now_time = datetime.datetime.now()
 
 
