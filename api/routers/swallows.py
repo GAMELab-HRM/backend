@@ -6,7 +6,7 @@ from models.Rawdata import WsData
 from sqlalchemy.orm import Session 
 from db_model.database import SessionLocal, engine # important
 from io import StringIO
-import shutil, copy, crud, pickle
+import shutil, copy, crud, pickle, json
 import pandas as pd 
 from pydantic import BaseModel, Field
 from uuid import UUID, uuid4
@@ -21,6 +21,14 @@ def get_db():
         yield db 
     finally:
         db.close()
+
+@router.get("/rawdata/{record_id}")
+def get_ws10_rawdata(record_id:UUID, db: Session = Depends(get_db)):
+    ws10_rawdata = crud.get_ws_rawdata(db, record_id)
+    retv = pickle.loads(ws10_rawdata[0].ws_10_raw)
+    return {
+        "wetswallows":json.dumps(retv)
+    }
 
 @router.get("/data/{record_id}", response_model=WetSwallow.WetSwallowGetResponse)
 def get_swallow_data(record_id:UUID, doctor_id:int, db: Session = Depends(get_db)):

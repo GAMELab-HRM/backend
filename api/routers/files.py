@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, Form, File, UploadFile, Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
-from utils import save_file, process_10swallow, preprocess_csv
+from utils import save_file, process_10swallow, preprocess_csv, parsing_csv
 from models.Rawdata import WsData 
 from io import StringIO
 from db_model.database import SessionLocal, engine # important
@@ -36,15 +36,13 @@ def upload_swallow_file(request:Request, files: UploadFile = File(...), db: Sess
     save_df, save_df.columns = df[1:], df.iloc[0]
 
     filename = files.filename
-    patient_id = str(df.loc[0,1])
-    ws_data_string, swallow_index, sensor_num = preprocess_csv(new_df)
+    patient_id = str(df.loc[0,1])[-4:]
+    #ws_data_string, swallow_index, sensor_num = preprocess_csv(new_df)
+    swallow_list, mrs_list, sensor_num = parsing_csv(new_df) # swallow_list, mrs_list 都要轉成binary且存入DB
     save_file("./data/basic_test/", filename, save_df) # 儲存助理上傳的csv 
 
 
     record_id = uuid.uuid4()
-    #patient_id = "D122974422"
-    #sensor_num = 20
-    #filename = "4422-normal.csv"
     now_time = datetime.datetime.now()
 
 
@@ -57,7 +55,7 @@ def upload_swallow_file(request:Request, files: UploadFile = File(...), db: Sess
     db_timerecord = crud.create_timerecord(db, TimeRecord.TimeRecordCreate(record_id=record_id, last_update=now_time, doctor_id=-1))# for MMS
 
     # INSERT INTO raw_data table
-    db_rawdata = crud.create_rawdata(db, Rawdata.RawDataCreate(filename=filename, record_id=record_id))
+    db_rawdata = crud.create_rawdata(db, Rawdata.RawDataCreate(filename=filename, record_id=record_id, ws_10_raw=swallow_list, mrs_raw=mrs_list))
 
     # INSERT INTO ws10 with doctor_id = [0,1,-1] 
     #temp = ["" for i in range(10)]

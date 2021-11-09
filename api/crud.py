@@ -7,12 +7,25 @@ import pickle
 CRUD for raw data 
 """
 def create_rawdata(db: Session, data: Rawdata.RawDataCreate):
-    db_rawdata = dbmodels.Raw_Data(filename=data.filename, record_id=data.record_id)
+    swallow_list_binary = pickle.dumps(data.ws_10_raw)
+    mrs_list_binary = pickle.dumps(data.mrs_raw)
+    db_rawdata = dbmodels.Raw_Data(filename=data.filename, record_id=data.record_id, ws_10_raw=swallow_list_binary, mrs_raw=mrs_list_binary)
     db.add(db_rawdata)
     db.commit()
     db.refresh(db_rawdata)
     return db_rawdata
 
+def get_ws_rawdata(db: Session, record_id):
+    ans = db.query(dbmodels.Raw_Data).filter(
+        (dbmodels.Raw_Data.record_id==record_id)
+    ).all()
+    return ans
+
+def get_mrs_rawdata(db: Session, record_id):
+    ans = db.query(dbmodels.Raw_Data).filter(
+        (dbmodels.Raw_Data.record_id==record_id)
+    ).all()
+    return ans
 """
 CRUD for patient 
 """
