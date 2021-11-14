@@ -7,6 +7,8 @@ import crud
 from sqlalchemy.orm import Session 
 from db_model.database import SessionLocal, engine
 from models import Patient
+from uuid import UUID, uuid4
+
 router = APIRouter(
     prefix="/api/v1/patient",
     tags=["for patient"]
@@ -29,3 +31,9 @@ def create_patient_data(patient_info:Patient.PatientCreate ,db: Session = Depend
     db_patient = crud.create_patient(db, patient_info)
     return db_patient
 
+@router.delete("/{record_id}")
+def delete_patient(record_id:UUID, db: Session = Depends(get_db)):
+    deleted = crud.delete_patient(db, record_id)
+    return {
+        "deleted":deleted
+    }

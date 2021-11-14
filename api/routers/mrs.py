@@ -29,7 +29,7 @@ def get_mrs_rawdata(record_id:UUID, db: Session = Depends(get_db)):
     retv = pickle.loads(mrs_rawdata[0].mrs_raw)
     print(len(retv))
     return {
-        "mrs":json.dumps(retv)
+        "rawdata":json.dumps(retv)
     }
 @router.get("/data")
 def get_mrs_data():

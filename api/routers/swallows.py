@@ -27,7 +27,7 @@ def get_ws10_rawdata(record_id:UUID, db: Session = Depends(get_db)):
     ws10_rawdata = crud.get_ws_rawdata(db, record_id)
     retv = pickle.loads(ws10_rawdata[0].ws_10_raw)
     return {
-        "wetswallows":json.dumps(retv)
+        "rawdata":json.dumps(retv)
     }
 
 @router.get("/data/{record_id}", response_model=WetSwallow.WetSwallowGetResponse)
@@ -46,11 +46,11 @@ def get_swallow_data(record_id:UUID, doctor_id:int, db: Session = Depends(get_db
     )
     return retv
 
-@router.post("/data")
-def add_swallow_data(data):
-    process_10swallow(data.GT)
-    process_10swallow(data.MMS)
-    return {"msg":"add new swallow data"}
+# @router.post("/data")
+# def add_swallow_data(data):
+#     process_10swallow(data.GT)
+#     process_10swallow(data.MMS)
+#     return {"msg":"add new swallow data"}
 
 @router.put("/data")
 def update_swallow_data(ws_update_info:WetSwallow.WetSwallowUpdate, db: Session = Depends(get_db)):
@@ -72,3 +72,4 @@ def update_swallow_data(ws_update_info:WetSwallow.WetSwallowUpdate, db: Session 
 def create_swallow(data:WetSwallowCreate):
     crud.create_ws10(data)
     return {"msg":"create swallow data "}
+

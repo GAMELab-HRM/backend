@@ -12,11 +12,11 @@ class Patient_info(Base):
     patient_id = Column(String, nullable=False)
     sensor_num = Column(Integer, nullable=False)
 
-    ws_data = relationship("Wet_swallows_10", back_populates="patient")
-    rawdata = relationship("Raw_Data", back_populates="patient")
-    time_data = relationship("Time_Record", back_populates="patient")
-    mrs_data = relationship("Mrs", back_populates="patient")
-    hh_data = relationship("Hiatal_Hernia", back_populates="patient")
+    ws_data = relationship("Wet_swallows_10", back_populates="patient", cascade="all, delete", passive_deletes=True)
+    rawdata = relationship("Raw_Data", back_populates="patient", cascade="all, delete", passive_deletes=True)
+    time_data = relationship("Time_Record", back_populates="patient", cascade="all, delete", passive_deletes=True)
+    mrs_data = relationship("Mrs", back_populates="patient", cascade="all, delete", passive_deletes=True)
+    hh_data = relationship("Hiatal_Hernia", back_populates="patient", cascade="all, delete", passive_deletes=True)
 
 class Doctor_info(Base):
     __tablename__ = "doctor_info"
@@ -31,7 +31,7 @@ class Doctor_info(Base):
 class Wet_swallows_10(Base):
     __tablename__ = "wet_swallows_10"
     index = Column(Integer, primary_key=True)
-    record_id = Column(UUID(as_uuid=True), ForeignKey("patient_info.record_id"), nullable=False, default=uuid.uuid4)
+    record_id = Column(UUID(as_uuid=True), ForeignKey("patient_info.record_id", ondelete="CASCADE"), nullable=False, default=uuid.uuid4)
     doctor_id = Column(Integer, ForeignKey("doctor_info.doctor_id"), nullable=False)
     vigors = Column(LargeBinary, default=ws_temp)
     patterns = Column(LargeBinary, default=ws_temp)
@@ -49,7 +49,7 @@ class Wet_swallows_10(Base):
 class Mrs(Base):
     __tablename__ = "mrs"
     index = Column(Integer, primary_key=True)
-    record_id = Column(UUID(as_uuid=True), ForeignKey("patient_info.record_id"), nullable=False, default=uuid.uuid4)
+    record_id = Column(UUID(as_uuid=True), ForeignKey("patient_info.record_id", ondelete="CASCADE"), nullable=False, default=uuid.uuid4)
     mrs_dci_position = Column(LargeBinary)
     mrs_dci = Column(LargeBinary)
     dci_after_mrs_position = Column(LargeBinary)
@@ -67,7 +67,7 @@ class Mrs(Base):
 class Hiatal_Hernia(Base):
     __tablename__ = "hiatal_hernia"
     index = Column(Integer, primary_key=True)
-    record_id = Column(UUID(as_uuid=True), ForeignKey("patient_info.record_id"), nullable=False, default=uuid.uuid4)
+    record_id = Column(UUID(as_uuid=True), ForeignKey("patient_info.record_id", ondelete="CASCADE"), nullable=False, default=uuid.uuid4)
     les_position = Column(Float)
     cd_position = Column(Float)
     rip_position = Column(Float)
@@ -87,7 +87,7 @@ class Raw_Data(Base):
     __tablename__ = "raw_data"
     index = Column(Integer, primary_key=True)
     filename = Column(String, nullable=False)
-    record_id = Column(UUID(as_uuid=True),  ForeignKey("patient_info.record_id"), nullable=False, default=uuid.uuid4)
+    record_id = Column(UUID(as_uuid=True),  ForeignKey("patient_info.record_id", ondelete="CASCADE"), nullable=False, default=uuid.uuid4)
     ws_10_raw = Column(LargeBinary)
     mrs_raw = Column(LargeBinary)
     rdc_raw = Column(LargeBinary)
@@ -98,7 +98,7 @@ class Raw_Data(Base):
 class Time_Record(Base):
     __tablename__ = "time_record"
     index = Column(Integer, primary_key=True)
-    record_id = Column(UUID(as_uuid=True),  ForeignKey("patient_info.record_id"), nullable=False, default=uuid.uuid4)
+    record_id = Column(UUID(as_uuid=True),  ForeignKey("patient_info.record_id", ondelete="CASCADE"), nullable=False, default=uuid.uuid4)
     doctor_id = Column(Integer, ForeignKey("doctor_info.doctor_id"), nullable=False)
     last_update = Column(DateTime(timezone=True), default=datetime.datetime.now())
 

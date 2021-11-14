@@ -51,6 +51,12 @@ def get_ws10(db: Session, ws_info:WetSwallow.WetSwallowGet):
     ).all()
     return ans
 
+def delete_patient(db: Session, record_id):
+    patient = db.query(dbmodels.Patient_info).filter(dbmodels.Patient_info.record_id==record_id).first()
+    db.delete(patient)
+    db.commit()
+    return True 
+
 def update_ws10(db: Session, data):
     updated_ws10 = db.query(dbmodels.Wet_swallows_10).filter(
         (dbmodels.Wet_swallows_10.record_id==data["record_id"]) & (dbmodels.Wet_swallows_10.doctor_id==data["doctor_id"])
