@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, Form, File, UploadFile, Depends
-from utils import save_file, process_10swallow, preprocess_csv
+from utils import save_file, preprocess_csv
 from models.WetSwallow import WetSwallowCreate
 from models import WetSwallow
 from models.Rawdata import WsData 

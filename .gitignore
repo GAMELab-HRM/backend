@@ -7,4 +7,5 @@
 /api/data/*.CSV
 __pycache__/
 /api/db_model/__pycache__
+/api/models/__pycache__
 /api/data/basic_test

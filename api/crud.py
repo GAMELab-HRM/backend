@@ -36,6 +36,7 @@ def get_patients(db: Session, skip: int=0,):
 
 def get_patient(): # get one patient by record_id & doctor_id
     pass
+    
 def create_patient(db: Session, info: Patient.PatientCreate):
     db_patient = dbmodels.Patient_info(record_id=info.record_id, patient_id=info.patient_id, sensor_num=info.sensor_num)
     db.add(db_patient)
