@@ -30,10 +30,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-#app.add_middleware(DBSessionMiddleware, db_url="postgresql://postgres:password@127.0.0.1:5432/postgres")
 
-engine = create_engine("postgresql://postgres:password@127.0.0.1:5432/postgres")
-print(engine.table_names())
 # FastAPI router 
 app.include_router(hiatal.router)
 app.include_router(swallows.router)
