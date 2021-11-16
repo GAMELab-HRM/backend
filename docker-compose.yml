@@ -15,6 +15,7 @@ services:
             - 0.0.0.0:80:80
         depends_on:
             - restful-server
+
     postgres:
         image: docker.pkg.github.com/gamelab-hrm/postgres/postgres:0.0.1
         expose:
@@ -25,6 +26,7 @@ services:
             - pg-backend 
         volumes:
             - postgres-data:/var/lib/postgresql/data
+
     flyway:
         image: flyway-migration
         restart: on-failure
@@ -44,6 +46,7 @@ services:
             - /home/toby/Desktop/mount:/code/data
         networks:
             - backend
+            - pg-backend
         depends_on:
             - postgres
 volumes:
