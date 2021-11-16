@@ -1,11 +1,15 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, LargeBinary , DateTime, Float
+from sqlalchemy.types import ARRAY
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship 
 import uuid, datetime, pickle
 from db_model.database import Base 
 
+ws_temp = [""  for i in range(10)]
+mrs_temp = ["" for i in range(5)]
+init_position = [["","","",""] for i in range(5)] # mrs1 ~ mrs5
+
 # our database table format 
-ws_temp = pickle.dumps([""  for i in range(10)])
 class Patient_info(Base):
     __tablename__ = "patient_info"
     record_id = Column(UUID(as_uuid=True), primary_key=True, unique=True, nullable=False, default=uuid.uuid4)
@@ -33,13 +37,14 @@ class Wet_swallows_10(Base):
     index = Column(Integer, primary_key=True)
     record_id = Column(UUID(as_uuid=True), ForeignKey("patient_info.record_id", ondelete="CASCADE"), nullable=False, default=uuid.uuid4)
     doctor_id = Column(Integer, ForeignKey("doctor_info.doctor_id"), nullable=False)
-    vigors = Column(LargeBinary, default=ws_temp)
-    patterns = Column(LargeBinary, default=ws_temp)
-    dcis = Column(LargeBinary, default=ws_temp)
-    swallow_types = Column(LargeBinary, default=ws_temp)
+    vigors = Column(ARRAY(String), default=ws_temp)
+    patterns = Column(ARRAY(String), default=ws_temp)
+    dcis = Column(ARRAY(String), default=ws_temp)
+    swallow_types = Column(String, default=ws_temp)
     ws_result = Column(String, default="")
-    irp4s = Column(LargeBinary, default=ws_temp)
-    dls = Column(LargeBinary, default=ws_temp)
+    irp4s = Column(ARRAY(String), default=ws_temp)
+    dls = Column(ARRAY(String), default=ws_temp)
+
     pressure_max = Column(Integer)
     pressure_min = Column(Integer)
 
@@ -50,14 +55,15 @@ class Mrs(Base):
     __tablename__ = "mrs"
     index = Column(Integer, primary_key=True)
     record_id = Column(UUID(as_uuid=True), ForeignKey("patient_info.record_id", ondelete="CASCADE"), nullable=False, default=uuid.uuid4)
-    mrs_dci_position = Column(LargeBinary)
-    mrs_dci = Column(LargeBinary)
-    dci_after_mrs_position = Column(LargeBinary)
-    dci_after_mrs = Column(LargeBinary)
-    irp1_position = Column(LargeBinary)
-    irp1 = Column(Float)
+    mrs_dci_position = Column(ARRAY(String), default=init_position)
+    mrs_dci = Column(ARRAY(String), default=mrs_temp)
+    dci_after_mrs_position = Column(ARRAY(String), default=init_position)
+    dci_after_mrs = Column(ARRAY(String), default=mrs_temp)
+    irp1_position = Column(ARRAY(String), default=init_position)
+    irp1 = Column(ARRAY(String), default=mrs_temp)
     doctor_id = Column(Integer, ForeignKey("doctor_info.doctor_id"), nullable=False)
-    mrs_result = Column(String)
+    mrs_result = Column(String, default="")
+    
     pressure_max = Column(Integer)
     pressure_min = Column(Integer)
 

@@ -34,8 +34,10 @@ def parsing_csv(df):
         if test_name in mrs_names:
             mrs_index.append(ans[i])
             if "MRS" not in next_name:
-                mrs_index.append(ans[i+1])
-
+                if i+1<len(ans):
+                    mrs_index.append(ans[i+1])
+                else:
+                    mrs_index.append(len(df)-1)
     mrs_list = [] # 存放3~5次mrs的raw data 
     for i in range(len(mrs_index)-1):
         mrs_i = df[mrs_index[i]:mrs_index[i+1]][sensors].astype(np.float32).values

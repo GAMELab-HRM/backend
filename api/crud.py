@@ -26,6 +26,7 @@ def get_mrs_rawdata(db: Session, record_id):
         (dbmodels.Raw_Data.record_id==record_id)
     ).all()
     return ans
+
 """
 CRUD for patient 
 """
@@ -85,6 +86,12 @@ def create_mrs(db: Session, mrs_data:MRS.MrsCreate):
     db.refresh(db_mrs)
     return db_mrs 
 
+def get_mrs(db: Session, record_id, doctor_id):
+    ans = db.query(dbmodels.Mrs).filter(
+        (dbmodels.Mrs.record_id==record_id) & (dbmodels.Mrs.doctor_id==doctor_id)
+    ).all()
+    return ans
+    
 """
 CRUD for Hiatal Hernia
 """
