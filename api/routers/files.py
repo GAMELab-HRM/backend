@@ -7,7 +7,6 @@ from models import Patient, WetSwallow, Rawdata, TimeRecord, MRS, HiatalHernia
 import shutil, copy, uuid, datetime, crud, pickle
 import pandas as pd 
 
-
 router = APIRouter(
     prefix="/api/v1/files",
     tags=["for csv files"]
@@ -24,11 +23,7 @@ def get_db():
 # upload raw data csv 
 @router.post("/")
 def upload_swallow_file(request:Request, files: UploadFile = File(...), db: Session = Depends(get_db)):
-
-    """
-    TODO:
-        check raw.csv already in Database ?
-    """
+    
     # save csv file 
     df = pd.read_csv(StringIO(str(files.file.read(), 'big5')), encoding='big5', header=None)
     new_df, new_df.columns = df[7:], df.iloc[6]
@@ -53,12 +48,10 @@ def upload_swallow_file(request:Request, files: UploadFile = File(...), db: Sess
     # INSERT INTO raw_data table
     db_rawdata = crud.create_rawdata(db, Rawdata.RawDataCreate(filename=filename, record_id=record_id, ws_10_raw=swallow_list, mrs_raw=mrs_list))
 
+    # INSERT INTO DB with doctor_io = [0, 1, -1]
     for i in [0, 1, -1]:
-        # INSERT INTO ws10 with doctor_id = [0,1,-1] 
         db_ws10 = crud.create_ws10(db, WetSwallow.WetSwallowCreate(record_id=record_id, doctor_id=i))
-        # INSERT INTO MRS with doctor_id = [0,1,-1]
         db_mrs = crud.create_mrs(db, MRS.MrsCreate(record_id=record_id, doctor_id=i))
-        # INSERT INTO Hiatal Hernia with doctor_id = [0,1,-1]
         db_hh = crud.create_hh(db, HiatalHernia.HiatalHerniaCreate(record_id=record_id, doctor_id=i))
 
     return{

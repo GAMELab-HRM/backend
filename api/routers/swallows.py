@@ -22,6 +22,7 @@ def get_db():
     finally:
         db.close()
 
+# 取得特定病人的hrm rawdata
 @router.get("/rawdata/{record_id}")
 def get_ws10_rawdata(record_id:UUID, db: Session = Depends(get_db)):
     ws10_rawdata = crud.get_ws_rawdata(db, record_id)
@@ -30,6 +31,7 @@ def get_ws10_rawdata(record_id:UUID, db: Session = Depends(get_db)):
         "rawdata":json.dumps(retv)
     }
 
+# 取得特定病人的data
 @router.get("/data/{record_id}", response_model=WetSwallow.WetSwallowGetResponse)
 def get_swallow_data(record_id:UUID, doctor_id:int, db: Session = Depends(get_db)):
     ws_data = crud.get_ws10(db, WetSwallow.WetSwallowGet(record_id=record_id, doctor_id=doctor_id))
@@ -46,19 +48,11 @@ def get_swallow_data(record_id:UUID, doctor_id:int, db: Session = Depends(get_db
     )
     return retv
 
+# 更新特定病人的data
 @router.put("/data")
 def update_swallow_data(ws_update_info:WetSwallow.WetSwallowUpdate, db: Session = Depends(get_db)):
     ws_update_info = ws_update_info.dict()
-    # 轉換成字典
-    print(ws_update_info)
-    ws_update_info["vigors"] = ws_update_info["vigors"]
-    ws_update_info["patterns"] = ws_update_info["patterns"]
-    ws_update_info["dcis"] = ws_update_info["dcis"]
-    ws_update_info["swallow_types"] = ws_update_info["swallow_types"]
-    ws_update_info["irp4s"] = ws_update_info["irp4s"]
-    ws_update_info["dls"] = ws_update_info["dls"]
     retv = crud.update_ws10(db, ws_update_info)
-    # crud update swallow 
     return retv
     
 

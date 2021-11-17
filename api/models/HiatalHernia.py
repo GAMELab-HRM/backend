@@ -10,3 +10,26 @@ class HiatalHerniaBase(BaseModel):
 
 class HiatalHerniaCreate(HiatalHerniaBase):
     doctor_id: int
+
+class HiatalHerniaUpdate(HiatalHerniaBase):
+    les_position: List
+    cd_position: List 
+    rip_position: List 
+    seperate: bool 
+    hiatal_hernia_result: str 
+    rip_result: str 
+    doctor_id: int 
+    pressure_max: Optional[int]
+    pressure_min: Optional[int]
+
+    
+class HiatalHerniaGetResponse(HiatalHerniaBase):
+    les_position: List
+    cd_position: List 
+    rip_position: List 
+    seperate: bool 
+    hiatal_hernia_result: str 
+    rip_result: str 
+    doctor_id: int 
+    pressure_max: Optional[int]
+    pressure_min: Optional[int]

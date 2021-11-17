@@ -36,7 +36,7 @@ def get_patients(db: Session, skip: int=0,):
 
 def get_patient(): # get one patient by record_id & doctor_id
     pass
-    
+
 def create_patient(db: Session, info: Patient.PatientCreate):
     db_patient = dbmodels.Patient_info(record_id=info.record_id, patient_id=info.patient_id, sensor_num=info.sensor_num)
     db.add(db_patient)
@@ -87,6 +87,14 @@ def create_mrs(db: Session, mrs_data:MRS.MrsCreate):
     db.refresh(db_mrs)
     return db_mrs 
 
+def update_mrs(db: Session, data):
+    updated_mrs = db.query(dbmodels.Mrs).filter(
+        (dbmodels.Mrs.record_id==data["record_id"]) & (dbmodels.Mrs.doctor_id==data["doctor_id"])
+    ).update(data)
+    db.commit()
+    db.flush()
+    return updated_mrs
+    
 def get_mrs(db: Session, record_id, doctor_id):
     ans = db.query(dbmodels.Mrs).filter(
         (dbmodels.Mrs.record_id==record_id) & (dbmodels.Mrs.doctor_id==doctor_id)

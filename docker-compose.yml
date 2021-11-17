@@ -41,7 +41,7 @@ services:
         restart: always
         user: ${CURRENT_UID}
         ports:
-            - 0.0.0.0:8080:8080
+            - 127.0.0.1:8080:8080
         volumes:
             - /home/toby/Desktop/mount:/code/data
         networks:

@@ -49,17 +49,8 @@ def get_mrs_data(record_id:UUID, doctor_id:int, db: Session = Depends(get_db)):
     return retv
 
 @router.put("/data")
-def update_mrs_data(ws_update_info:WetSwallow.WetSwallowUpdate, db: Session = Depends(get_db)):
-    # ws_update_info = ws_update_info.dict()
-    
-    # print(ws_update_info)
-    # ws_update_info["vigors"] = ws_update_info["vigors"]
-    # ws_update_info["patterns"] = ws_update_info["patterns"]
-    # ws_update_info["dcis"] = ws_update_info["dcis"]
-    # ws_update_info["swallow_types"] = ws_update_info["swallow_types"]
-    # ws_update_info["irp4s"] = ws_update_info["irp4s"]
-    # ws_update_info["dls"] = ws_update_info["dls"]
-    # retv = crud.update_ws10(db, ws_update_info)
-   
-    return 0
+def update_mrs_data(mrs_update_info:MRS.MrsUpdate, db: Session = Depends(get_db)):
+    mrs_update_info = mrs_update_info.dict()
+    retv = crud.update_mrs(db, mrs_update_info)
+    return retv
     
