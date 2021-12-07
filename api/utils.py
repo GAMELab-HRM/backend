@@ -40,14 +40,16 @@ def parsing_csv(df):
                     mrs_index.append(len(df)-1)
     mrs_list = [] # 存放3~5次mrs的raw data 
     for i in range(len(mrs_index)-1):
-        mrs_i = df[mrs_index[i]:mrs_index[i+1]][sensors].astype(np.float32).values
+        #mrs_i = df[mrs_index[i]:mrs_index[i+1]][sensors].astype(np.float32).values #原本的作法
+        mrs_i = df[mrs_index[i]-80:mrs_index[i]+400][sensors].astype(np.float32).values # 2021/12/07 更新,會往前多抓4秒,往後抓20秒,一個swallow共24秒
         mrs_i = np.transpose(mrs_i)
         mrs_i = mrs_i.tolist()
         mrs_list.append(mrs_i)
 
     swallow_list = [] # 存放10個swallow的raw data
     for i in range(len(swallow_index)-1):
-        swallow_i = df[swallow_index[i]:swallow_index[i+1]][sensors].astype(np.float32).values
+        #swallow_i = df[swallow_index[i]:swallow_index[i+1]][sensors].astype(np.float32).values #原本的作法
+        swallow_i = df[swallow_index[i]-80:swallow_index[i]+440][sensors].astype(np.float32).values # 2021/12/07 更新,會往前多抓4秒,往後抓22秒,一個swallow共26秒
         swallow_i = np.transpose(swallow_i)
         swallow_i = swallow_i.tolist()
         swallow_list.append(swallow_i)
