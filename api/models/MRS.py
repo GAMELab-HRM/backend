@@ -1,5 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field
+from pydantic import Json
 from uuid import UUID, uuid4 
 
 '''
@@ -10,14 +11,14 @@ class MrsBase(BaseModel):
 
 class MrsCreate(MrsBase):
     doctor_id: int
+    mrs_metric: dict 
+    draw_info: dict
 
 # Come from FrontEnd
 class MrsUpdate(MrsBase):
-    mrs_dci_position: List
+    draw_info: dict
     mrs_dci: List
-    dci_after_mrs_position: List
     dci_after_mrs: List 
-    irp1_position: List
     irp1: List
     doctor_id: int 
     mrs_result: str = None 
@@ -25,13 +26,15 @@ class MrsUpdate(MrsBase):
     pressure_min: Optional[int]
 
 class MrsGetResponse(MrsBase):
-    mrs_dci_position: List
+    draw_info: dict
     mrs_dci: List
-    dci_after_mrs_position: List
     dci_after_mrs: List 
-    irp1_position: List
     irp1: List
     doctor_id: int 
     mrs_result: str
     pressure_max: Optional[int]
     pressure_min: Optional[int]
+
+class MrsResult(BaseModel):
+    mrs_result: str 
+    

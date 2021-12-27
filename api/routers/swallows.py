@@ -32,7 +32,7 @@ def get_ws10_rawdata(record_id:UUID, db: Session = Depends(get_db)):
     }
 
 # 取得特定病人的data
-@router.get("/data/{record_id}", response_model=WetSwallow.WetSwallowGetResponse)
+@router.get("/data", response_model=WetSwallow.WetSwallowGetResponse)
 def get_swallow_data(record_id:UUID, doctor_id:int, db: Session = Depends(get_db)):
     ws_data = crud.get_ws10(db, WetSwallow.WetSwallowGet(record_id=record_id, doctor_id=doctor_id))
     retv = WetSwallow.WetSwallowGetResponse(

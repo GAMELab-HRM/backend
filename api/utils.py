@@ -1,11 +1,13 @@
 import pandas as pd 
 import numpy as np
 import json, os, logging, datetime, shutil, pytz, pickle
+from typing import Tuple, List
 
 # 這個function會回傳需要存入database的數值
-def parsing_csv(df):
+def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
     df['檢查流程'] = df['檢查流程'].fillna('None')
     column_names = df.columns
+    hh_names = ["Landmark"]
     swallow_names = ["Wet swallow"+str(i+1) for i in range(10)]
     mrs_names = ["MRS"+str(i+1) for i in range(5)]
     sensor_num = 0 
@@ -17,15 +19,17 @@ def parsing_csv(df):
     sensors = [" P"+str(i+1) for i in range(sensor_num)]
     ans = list(np.where(df['檢查流程']!='None')[0])
 
-    swallow_index = []
-    mrs_index = []
+    hh_index, swallow_index, mrs_index = [], [], []
+    hh_list, swallow_list, mrs_list = [], [], []
     for i in range(len(ans)):
         test_name = df.iloc[ans[i]]['檢查流程']
         if i == len(ans)-1:
             next_name = ""
         else:
             next_name = df.iloc[ans[i+1]]['檢查流程']
-
+        if test_name in hh_names:
+            hh_index.append(ans[i])
+            
         if test_name in swallow_names:
             swallow_index.append(ans[i])
             if "Wet swallow" not in next_name:
@@ -38,7 +42,13 @@ def parsing_csv(df):
                     mrs_index.append(ans[i+1])
                 else:
                     mrs_index.append(len(df)-1)
-    mrs_list = [] # 存放3~5次mrs的raw data 
+    
+    for i in range(len(hh_index)):
+        hh_i = df[hh_index[i]:hh_index[i]+480][sensors].astype(np.float32).values 
+        hh_i = np.transpose(hh_i)
+        hh_i = hh_i.tolist()
+        hh_list.append(hh_i)
+    
     for i in range(len(mrs_index)-1):
         #mrs_i = df[mrs_index[i]:mrs_index[i+1]][sensors].astype(np.float32).values #原本的作法
         mrs_i = df[mrs_index[i]-80:mrs_index[i]+400][sensors].astype(np.float32).values # 2021/12/07 更新,會往前多抓4秒,往後抓20秒,一個swallow共24秒
@@ -46,7 +56,6 @@ def parsing_csv(df):
         mrs_i = mrs_i.tolist()
         mrs_list.append(mrs_i)
 
-    swallow_list = [] # 存放10個swallow的raw data
     for i in range(len(swallow_index)-1):
         #swallow_i = df[swallow_index[i]:swallow_index[i+1]][sensors].astype(np.float32).values #原本的作法
         swallow_i = df[swallow_index[i]-80:swallow_index[i]+440][sensors].astype(np.float32).values # 2021/12/07 更新,會往前多抓4秒,往後抓22秒,一個swallow共26秒
@@ -54,8 +63,8 @@ def parsing_csv(df):
         swallow_i = swallow_i.tolist()
         swallow_list.append(swallow_i)
     #print(swallow_list[0])
-
-    return swallow_list, mrs_list, sensor_num
+    print(len(swallow_list), len(mrs_list), len(hh_list))
+    return swallow_list, mrs_list, hh_list, sensor_num
 
 
 # for 10 wet swallows 
@@ -91,32 +100,25 @@ def preprocess_csv(df):
     retv = []
     temp = np.transpose(all_swallows_data)
     temp = temp.tolist()
-    # for i in range(len(temp)-1,-1,-1):
-    #     retv.append(temp[i])
     
     return json.dumps(temp), swallow_index[:-1], sensor_num
 
-def current_time():
+def current_time() -> str:
     tw = pytz.timezone("Asia/Taipei")
     return " | " + str(tw.localize(datetime.datetime.now()))
     
-def check_folder_exist(path):
+def check_folder_exist(path: str) -> None:
     if not os.path.exists(path):
         os.mkdir(path)
         logging.info("Create folder: " + path)
 
-def save_file(path, filename, df):
+def save_file(path: str, filename: str, df: pd.DataFrame) -> None:
     check_folder_exist(path)
-    
-    # save file 
-    # with open(path + files.filename, "wb+") as file_object:
-    #     shutil.copyfileobj(files.file, file_object)
     df.to_csv(path+filename, index=False, encoding='big5')
     logging.info("save " + filename + current_time())
     
 
-def backup_csv(df, path, filename):
-    # check csv folder exist?
+def backup_csv(df: pd.DataFrame, path: str, filename: str) -> None:
     check_folder_exist(path)
     df.to_csv(path+filename, encoding="big5", index=False) 
     logging.info("save " + filename + "\t" + str(current_time()))
