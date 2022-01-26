@@ -24,6 +24,7 @@ class WetSwallowUpdate(WetSwallowBase):
     vigors: List
     patterns: List 
     dcis: List 
+    breaks: List
     swallow_types: List 
     irp4s: List 
     dls: List 
@@ -39,6 +40,7 @@ class WetSwallowGetResponse(WetSwallowBase):
     vigors: List
     patterns: List 
     dcis: List 
+    breaks: List
     swallow_types: List 
     irp4s: List 
     dls: List 

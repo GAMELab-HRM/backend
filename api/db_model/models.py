@@ -23,7 +23,6 @@ class Doctor_info(Base):
     __tablename__ = "doctor_info"
     doctor_id = Column(Integer, nullable=False, primary_key=True, unique=True)
     doctor_name = Column(String, nullable=False)
-
     ws_data = relationship("Wet_swallows_10", back_populates="doctor")
     time_data = relationship("Time_Record", back_populates="doctor")
     mrs_data = relationship("Mrs", back_populates="doctor")
@@ -37,6 +36,7 @@ class Wet_swallows_10(Base):
     vigors = Column(ARRAY(String), default=ws_temp)
     patterns = Column(ARRAY(String), default=ws_temp)
     dcis = Column(ARRAY(String), default=ws_temp)
+    breaks = Column(ARRAY(String), default=ws_temp)
     swallow_types = Column(String, default=ws_temp)
     ws_result = Column(String, default="")
     irp4s = Column(ARRAY(String), default=ws_temp)
@@ -94,3 +94,7 @@ class Time_Record(Base):
     patient = relationship("Patient_info", back_populates="time_data")
     doctor = relationship("Doctor_info", back_populates="time_data")
 
+class User_Record(Base):
+    __tablename__ = "user_record"
+    username = Column(String, primary_key=True)
+    password = Column(String, nullable=False)

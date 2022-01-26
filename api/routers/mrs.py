@@ -7,6 +7,7 @@ from typing import Dict, Any
 import crud, pickle, json
 import pandas as pd 
 from uuid import UUID
+from auth.auth_bearer import JWTBearer 
 
 router = APIRouter(
     prefix="/api/v1/mrs",
@@ -24,7 +25,7 @@ def get_db():
 處理MRS raw data 
 [GET] 取得mrs的raw data
 """
-@router.get("/rawdata")
+@router.get("/rawdata", dependencies=[Depends(JWTBearer())])
 def get_mrs_rawdata(record_id:UUID, db: Session = Depends(get_db)):
     mrs_rawdata = crud.get_mrs_rawdata(db, record_id)
     retv = pickle.loads(mrs_rawdata[0].mrs_raw)
@@ -38,12 +39,12 @@ def get_mrs_rawdata(record_id:UUID, db: Session = Depends(get_db)):
 [GET] 前端取得mrs的ept-metrics數值
 [PUT] 前端更新mrs的ept-metrics數值
 """
-@router.get("/metrics")
+@router.get("/metrics", dependencies=[Depends(JWTBearer())])
 def get_mrs_metric(record_id: UUID, doctor_id: int, db: Session = Depends(get_db)):
     mrs_metric = crud.get_mrs_metric(db, record_id, doctor_id)
     return mrs_metric
 
-@router.put("/metrics")
+@router.put("/metrics", dependencies=[Depends(JWTBearer())])
 def update_mrs_metric(request: Dict[Any, Any], record_id: UUID, doctor_id: int, db: Session = Depends(get_db)):
     mrs_metric = crud.update_mrs_metric(db, request, record_id, doctor_id)
     return mrs_metric
@@ -54,12 +55,12 @@ def update_mrs_metric(request: Dict[Any, Any], record_id: UUID, doctor_id: int, 
 [GET] 前端取得mrs畫線的資訊
 [PUT] 前端更新mrs畫線的資訊
 """
-@router.get("/drawinfo")
+@router.get("/drawinfo", dependencies=[Depends(JWTBearer())])
 def get_mrs_drawinfo(record_id: UUID, doctor_id: int, db: Session = Depends(get_db)):
     mrs_drawinfo = crud.get_mrs_drawinfo(db, record_id, doctor_id)
     return mrs_drawinfo
 
-@router.put("/drawinfo")
+@router.put("/drawinfo", dependencies=[Depends(JWTBearer())])
 def update_mrs_drawinfo(request: Dict[Any, Any], record_id: UUID, doctor_id: int, db: Session = Depends(get_db)):
     mrs_drawinfo = crud.update_mrs_drawinfo(db, request, record_id, doctor_id)
     return mrs_drawinfo
@@ -70,12 +71,12 @@ def update_mrs_drawinfo(request: Dict[Any, Any], record_id: UUID, doctor_id: int
 [GET] 前端取得mrs的結果 
 [PUT] 前端更新mrs的結果
 """
-@router.get("/result", response_model=MRS.MrsResult)
+@router.get("/result", response_model=MRS.MrsResult, dependencies=[Depends(JWTBearer())])
 def get_mrs_result(record_id: UUID, doctor_id: int, db: Session = Depends(get_db)):
     mrs_result = crud.get_mrs_result(db, record_id, doctor_id)
     return MRS.MrsResult(mrs_result = mrs_result)
 
-@router.put("/result")
+@router.put("/result", dependencies=[Depends(JWTBearer())])
 def update_mrs_result(request: MRS.MrsResult, record_id: UUID, doctor_id: int, db: Session = Depends(get_db)):
     updated_mrs_result = crud.update_mrs_result(db, request.dict(), record_id, doctor_id)
     return updated_mrs_result

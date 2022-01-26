@@ -7,3 +7,7 @@ pytz==2021.1
 fastapi_sqlalchemy
 psycopg2-binary
 uuid==1.30
+cryptography
+"python-jose[cryptography]"
+"passlib[bcrypt]"
+python-decouple

@@ -5,6 +5,7 @@ from models import Table
 from typing import List
 from db_model.database import SessionLocal, engine # important
 import shutil, crud
+from auth.auth_bearer import JWTBearer 
 
 router = APIRouter(
     prefix="/api/v1/table",
@@ -19,12 +20,12 @@ def get_db():
     finally:
         db.close()
 
-@router.get("/basic_test/upload", response_model=List[Table.UploadPageTable])
+@router.get("/basic_test/upload", response_model=List[Table.UploadPageTable], dependencies=[Depends(JWTBearer())])
 def get_basic_upload_table(db: Session = Depends(get_db)):
     result = crud.get_upload_info(db)
     return result 
 
-@router.get("/basic_test/all", response_model=List[Table.AllTable])
+@router.get("/basic_test/all", response_model=List[Table.AllTable], dependencies=[Depends(JWTBearer())])
 def get_basic_all_table(db: Session = Depends(get_db)):
     result = crud.get_all_info(db)
     return result

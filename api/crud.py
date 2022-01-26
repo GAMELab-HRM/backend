@@ -279,3 +279,12 @@ def create_json(db: Session, info):
 def get_json(db: Session):
     ans = db.query(dbmodels.Testing.draw_info).all()
     return ans 
+
+"""
+CRUD for Auth User
+"""
+def user_in_db(db: Session, username, password):
+    user = db.query(dbmodels.User_Record).filter(
+        (dbmodels.User_Record.username == username) & (dbmodels.User_Record.password == password)
+    ).all()
+    return user 
