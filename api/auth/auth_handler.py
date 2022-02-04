@@ -8,7 +8,7 @@ JWT_ALGORITHM = config("algorithm")
 def signJWT(username: str):
     payload = {
         "username": username,
-        "expires": time.time() + 120 #過期時間
+        "expires": time.time() + 300 #過期時間
     }
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
     return {

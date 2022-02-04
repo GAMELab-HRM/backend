@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Request, Form, File, UploadFile, Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
-from utils import save_file, preprocess_csv, parsing_csv
+from utils import save_file, parsing_csv, parsing_csv_new
 from io import StringIO
 from db_model.database import SessionLocal, engine # important
 from models import Patient, WetSwallow, Rawdata, TimeRecord, MRS, HiatalHernia
-import shutil, copy, uuid, datetime, crud, pickle
+import uuid, datetime, crud, pickle
 import pandas as pd 
 
 router = APIRouter(
@@ -56,13 +56,19 @@ def init_hh_drawinfo():
 def upload_swallow_file(request:Request, files: UploadFile = File(...), db: Session = Depends(get_db)):
     
     # save csv file 
-    df = pd.read_csv(StringIO(str(files.file.read(), 'big5')), encoding='big5', header=None)
+    df = pd.read_csv(StringIO(str(files.file.read(), 'big5')), encoding='big5', header=None, low_memory=False)
+    
     new_df, new_df.columns = df[7:], df.iloc[6]
     save_df, save_df.columns = df[1:], df.iloc[0]
 
     filename = files.filename
     patient_id = str(df.loc[0,1])[-4:]
-    swallow_list, mrs_list, hh_list, sensor_num = parsing_csv(new_df) # swallow_list, mrs_list 都要轉成binary且存入DB
+    if "ws_10_vigor" in new_df.columns: 
+        print(filename, "新資料格式")
+        swallow_list, mrs_list, hh_list, sensor_num = parsing_csv_new(new_df)
+    else:
+        print(filename, "舊資料格式")
+        swallow_list, mrs_list, hh_list, sensor_num = parsing_csv(new_df) # swallow_list, mrs_list 都要轉成binary且存入DB
     save_file("./data/basic_test/", filename, save_df) # 儲存助理上傳的csv 
 
     record_id = uuid.uuid4() # create this patient's UUID

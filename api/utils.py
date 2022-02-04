@@ -3,6 +3,106 @@ import numpy as np
 import json, os, logging, datetime, shutil, pytz, pickle
 from typing import Tuple, List
 
+# 計算swallow type
+def compute_type(vigor: str, pattern: str) -> str:
+    vigor = vigor.replace(" ","")
+    pattern = pattern.replace(" ","")
+    if pattern == "Intact" or pattern == "Failed":
+        return vigor 
+    if pattern == "Fragmented" or pattern == "Premature":
+        return pattern
+
+# sensor mapping 
+def get_sensor_num(catheter_type: int) -> int: 
+    if catheter_type == 1: # K103659-E-1545-D
+        return [" P" + str(i+1) for i in range(36)]
+    elif catheter_type == 2: # K83259-E-1263-D
+        return [" P" + str(i+1) for i in range(32)]
+    elif catheter_type == 3: # CE4-1083
+        return [" P" + str(i+1) for i in range(22)]
+    elif catheter_type == 4: # CE4-0062
+        return [" P" + str(i+1) for i in range(22)]
+    elif catheter_type == 5: # CE4-0037
+        return [" P" + str(i+1) for i in range(20)]
+    elif catheter_type == 6:
+        return [" P" + str(i+1) for i in range(36)] 
+    
+# 得到哪幾個swallow是有效的 (有些swallow是失敗的)
+def get_ws_names(df: pd.DataFrame,) -> Tuple[List, List, List, int]:
+    label_df = df[["ws_10_vigor", "ws_10_pattern", "ws_10_dci", "ws_10_irp40", "ws_10_dl", "ws_10_large_break"]]
+    label_df = label_df.fillna("None")
+    vigors = [x for x in label_df["ws_10_vigor"].values if x!= "None"] 
+    ws_num = len(vigors)
+    patterns = (label_df["ws_10_pattern"][:ws_num].values).tolist()
+    dcis = (label_df["ws_10_dci"][:ws_num].values).tolist()
+    irps = (label_df["ws_10_irp40"][:ws_num].values).tolist()
+    dls = (label_df["ws_10_dl"][:ws_num].values).tolist()
+    large_breaks = (label_df["ws_10_large_break"][:ws_num].values).tolist()
+    failed_index = []
+    # find failed swallow 
+    for index in range(len(vigors)):
+        if vigors[index] == "無數據":
+            failed_index.append(index)
+    catheter_type = int(df["catheter_type"].values[0])
+    return  vigors, patterns, dcis, irps, dls, large_breaks, failed_index, catheter_type
+
+def get_ws10_new(df: pd.DataFrame, ws_num: int, failed_index: List, vigors: List, patterns:List, catheter_type: int,) -> Tuple[List, List, List]:
+    """
+        ws_num: 有些病人不只有10個swallow (有幾次可能是無效的)
+    """
+    df['檢查流程'] = df['檢查流程'].fillna('None')
+    swallow_index, swallow_list, swallow_types = [], [], []
+    sensors = get_sensor_num(catheter_type)
+    # get wet swallow index 
+    for index in range(ws_num):
+        if index in failed_index:
+            continue
+        vigor = vigors[index]
+        pattern = patterns[index]
+        target_index = int(np.where(df["檢查流程"]=="Wet Swallow" + str(index+1))[0])
+        swallow_index.append(target_index)
+        swallow_types.append(compute_type(vigor, pattern))
+        swallow_i = df[target_index-80:target_index+440][sensors].astype(np.float32).values # 2022/01/29 只取12秒 (改看看，看效能會不會變好)
+        swallow_i = np.transpose(swallow_i)
+        swallow_i = swallow_i.tolist()
+        swallow_list.append(swallow_i)
+    return swallow_list, swallow_types, [i for i in range(ws_num) if i not in failed_index]
+
+def get_new(df: pd.DataFrame, catheter_type: int):
+    df['檢查流程'] = df['檢查流程'].fillna('None')
+    ans = list(np.where(df['檢查流程']!='None')[0])
+    sensors = get_sensor_num(catheter_type)
+    mrs_names = ["MRS"+str(i+1) for i in range(10)]
+    hh_names = ["Landmark"]
+    mrs_index, hh_index = [], []
+    mrs_list, hh_list = [], []
+    for i in range(len(ans)):
+        test_name = df.iloc[ans[i]]['檢查流程']
+        if test_name in mrs_names:
+            mrs_index.append(ans[i])
+        
+        if test_name in hh_names:
+            hh_index.append(ans[i])
+
+    for i in range(len(mrs_index)):
+        mrs_i = df[mrs_index[i]-80:mrs_index[i]+520][sensors].astype(np.float32).values # 2022/0205/ mrs可能要往後抓一點
+        mrs_i = np.transpose(mrs_i)
+        mrs_i = mrs_i.tolist()
+        mrs_list.append(mrs_i)
+        
+    for i in range(len(hh_index)):
+        hh_i = df[hh_index[i]:hh_index[i]+480][sensors].astype(np.float32).values 
+        hh_i = np.transpose(hh_i)
+        hh_i = hh_i.tolist()
+        hh_list.append(hh_i)
+    return mrs_list, hh_list
+
+def parsing_csv_new(df: pd.DataFrame):
+    vigors, patterns, dcis, irps, dls, large_breaks, failed_index, catheter_type = get_ws_names(df)
+    swallow_list, swallow_types, swallow_index = get_ws10_new(df, len(vigors), failed_index, vigors, patterns, catheter_type)
+    mrs_list, hh_list = get_new(df, catheter_type)
+    return swallow_list, mrs_list, hh_list, len(get_sensor_num(catheter_type))
+
 # 這個function會回傳需要存入database的數值
 def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
     df['檢查流程'] = df['檢查流程'].fillna('None')
@@ -51,7 +151,7 @@ def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
     
     for i in range(len(mrs_index)-1):
         #mrs_i = df[mrs_index[i]:mrs_index[i+1]][sensors].astype(np.float32).values #原本的作法
-        mrs_i = df[mrs_index[i]-80:mrs_index[i]+400][sensors].astype(np.float32).values # 2021/12/07 更新,會往前多抓4秒,往後抓20秒,一個swallow共24秒
+        mrs_i = df[mrs_index[i]-80:mrs_index[i]+520][sensors].astype(np.float32).values # 2022/0205/ mrs可能要往後抓一點
         mrs_i = np.transpose(mrs_i)
         mrs_i = mrs_i.tolist()
         mrs_list.append(mrs_i)
