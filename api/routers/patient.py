@@ -37,3 +37,11 @@ def delete_patient(record_id:UUID, db: Session = Depends(get_db)):
     return {
         "deleted":deleted
     }
+
+@router.get("/catheter", response_model=Patient.PatientCatheter)
+def get_catheter_type(record_id: UUID, db: Session = Depends(get_db)):
+    catheter_type = crud.get_catheter(record_id, db)[0]
+    return {
+        "record_id": record_id,
+        "catheter_type": catheter_type
+    }

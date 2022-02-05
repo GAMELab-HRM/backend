@@ -12,7 +12,7 @@ class Patient_info(Base):
     __tablename__ = "patient_info"
     record_id = Column(UUID(as_uuid=True), primary_key=True, unique=True, nullable=False, default=uuid.uuid4)
     patient_id = Column(String, nullable=False)
-    sensor_num = Column(Integer, nullable=False)
+    catheter_type = Column(Integer, default=-1)
     ws_data = relationship("Wet_swallows_10", back_populates="patient", cascade="all, delete", passive_deletes=True)
     rawdata = relationship("Raw_Data", back_populates="patient", cascade="all, delete", passive_deletes=True)
     time_data = relationship("Time_Record", back_populates="patient", cascade="all, delete", passive_deletes=True)

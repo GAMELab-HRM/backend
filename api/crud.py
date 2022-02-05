@@ -46,8 +46,14 @@ def get_patients(db: Session, skip: int=0,):
 def get_patient(): # get one patient by record_id & doctor_id
     pass
 
+def get_catheter(record_id: UUID, db: Session):
+    ans = db.query(dbmodels.Patient_info.catheter_type).filter(
+        (dbmodels.Patient_info.record_id == record_id)
+    ).one()
+    return ans 
+
 def create_patient(db: Session, info: Patient.PatientCreate):
-    db_patient = dbmodels.Patient_info(record_id=info.record_id, patient_id=info.patient_id, sensor_num=info.sensor_num)
+    db_patient = dbmodels.Patient_info(record_id=info.record_id, patient_id=info.patient_id, catheter_type=info.catheter_type)
     db.add(db_patient)
     db.commit()
     db.refresh(db_patient)

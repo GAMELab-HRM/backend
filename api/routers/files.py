@@ -65,17 +65,17 @@ def upload_swallow_file(request:Request, files: UploadFile = File(...), db: Sess
     patient_id = str(df.loc[0,1])[-4:]
     if "ws_10_vigor" in new_df.columns: 
         print(filename, "新資料格式")
-        swallow_list, mrs_list, hh_list, sensor_num = parsing_csv_new(new_df)
+        swallow_list, mrs_list, hh_list, catheter_type = parsing_csv_new(new_df)
     else:
         print(filename, "舊資料格式")
-        swallow_list, mrs_list, hh_list, sensor_num = parsing_csv(new_df) # swallow_list, mrs_list 都要轉成binary且存入DB
+        swallow_list, mrs_list, hh_list, catheter_type = parsing_csv(new_df) # swallow_list, mrs_list 都要轉成binary且存入DB
     save_file("./data/basic_test/", filename, save_df) # 儲存助理上傳的csv 
 
     record_id = uuid.uuid4() # create this patient's UUID
     now_time = datetime.datetime.now() # create current time 
 
     # INSERT INTO patient_info table;
-    db_patient = crud.create_patient(db, Patient.PatientCreate(patient_id=patient_id, record_id=record_id, sensor_num=sensor_num))
+    db_patient = crud.create_patient(db, Patient.PatientCreate(patient_id=patient_id, record_id=record_id, catheter_type=catheter_type))
 
     # INSERT INTO Time_Record table;
     db_timerecord = crud.create_timerecord(db, TimeRecord.TimeRecordCreate(record_id=record_id, last_update=now_time, doctor_id=0)) # for Dr.Lei

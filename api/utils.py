@@ -101,7 +101,7 @@ def parsing_csv_new(df: pd.DataFrame):
     vigors, patterns, dcis, irps, dls, large_breaks, failed_index, catheter_type = get_ws_names(df)
     swallow_list, swallow_types, swallow_index = get_ws10_new(df, len(vigors), failed_index, vigors, patterns, catheter_type)
     mrs_list, hh_list = get_new(df, catheter_type)
-    return swallow_list, mrs_list, hh_list, len(get_sensor_num(catheter_type))
+    return swallow_list, mrs_list, hh_list, catheter_type
 
 # 這個function會回傳需要存入database的數值
 def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
@@ -164,7 +164,7 @@ def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
         swallow_list.append(swallow_i)
     #print(swallow_list[0])
     print(len(swallow_list), len(mrs_list), len(hh_list))
-    return swallow_list, mrs_list, hh_list, sensor_num
+    return swallow_list, mrs_list, hh_list, -1
 
 
 # for 10 wet swallows 

@@ -10,8 +10,12 @@ class PatientBase(BaseModel):
 
 class PatientCreate(PatientBase):
     record_id: UUID = Field(default_factory=uuid4)
-    sensor_num:int 
+    catheter_type: int
 
+class PatientCatheter(BaseModel):
+    record_id: UUID = Field(default_factory=uuid4)
+    catheter_type: int 
+    
 class PatientRow(PatientBase):
     filename: str 
     doctor_id: str
@@ -23,7 +27,7 @@ class PatientRow(PatientBase):
 
 class PatientObject(PatientBase):
     record_id: UUID = Field(default_factory=uuid4)
-    sensor_num: int
+    catheter_type: int
     
     class Config:
         orm_mode = True
