@@ -65,10 +65,10 @@ def upload_swallow_file(request:Request, files: UploadFile = File(...), db: Sess
     patient_id = str(df.loc[0,1])[-4:]
     if "ws_10_vigor" in new_df.columns: 
         print(filename, "新資料格式")
-        swallow_list, mrs_list, hh_list, catheter_type = parsing_csv_new(new_df)
+        swallow_list, swallow_index, mrs_list, mrs_index, hh_list, hh_index, catheter_type, all_data = parsing_csv_new(new_df)
     else:
         print(filename, "舊資料格式")
-        swallow_list, mrs_list, hh_list, catheter_type = parsing_csv(new_df) # swallow_list, mrs_list 都要轉成binary且存入DB
+        swallow_list, swallow_index, mrs_list, mrs_index, hh_list, hh_index, catheter_type, all_data = parsing_csv(new_df) # swallow_list, mrs_list 都要轉成binary且存入DB
     save_file("./data/basic_test/", filename, save_df) # 儲存助理上傳的csv 
 
     record_id = uuid.uuid4() # create this patient's UUID
@@ -83,7 +83,13 @@ def upload_swallow_file(request:Request, files: UploadFile = File(...), db: Sess
     db_timerecord = crud.create_timerecord(db, TimeRecord.TimeRecordCreate(record_id=record_id, last_update=now_time, doctor_id=-1))# for MMS
 
     # INSERT INTO raw_data table
-    db_rawdata = crud.create_rawdata(db, Rawdata.RawDataCreate(filename=filename, record_id=record_id, hh_raw=hh_list, ws_10_raw=swallow_list, mrs_raw=mrs_list))
+    print("WS 10 index", swallow_index)
+    print("MRS index", mrs_index)
+    print("HH index", hh_index)
+    db_rawdata = crud.create_rawdata(db, Rawdata.RawDataCreate(
+        filename=filename, record_id=record_id, hh_raw=hh_list, ws_10_raw=swallow_list, mrs_raw=mrs_list,
+        ws_10_index = swallow_index, mrs_index=mrs_index, hh_index=hh_index, all_raw=all_data,
+    ))
 
     # INSERT INTO DB with doctor_io = [0, 1, -1]
     for i in [0, 1, -1]:

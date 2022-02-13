@@ -79,10 +79,15 @@ class Raw_Data(Base):
     index = Column(Integer, primary_key=True)
     filename = Column(String, nullable=False)
     record_id = Column(UUID(as_uuid=True),  ForeignKey("patient_info.record_id", ondelete="CASCADE"), nullable=False, default=uuid.uuid4)
+    all_raw = Column(LargeBinary)
     ws_10_raw = Column(LargeBinary)
+    ws_10_index = Column(ARRAY(Integer))
     mrs_raw = Column(LargeBinary)
+    mrs_index = Column(ARRAY(Integer))
     rdc_raw = Column(LargeBinary)
+    rdc_index = Column(ARRAY(Integer))
     hh_raw = Column(LargeBinary)
+    hh_index = Column(ARRAY(Integer))
     patient = relationship("Patient_info", back_populates="rawdata")
 
 class Time_Record(Base):

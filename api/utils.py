@@ -66,12 +66,14 @@ def get_ws10_new(df: pd.DataFrame, ws_num: int, failed_index: List, vigors: List
         swallow_i = np.transpose(swallow_i)
         swallow_i = swallow_i.tolist()
         swallow_list.append(swallow_i)
-    return swallow_list, swallow_types, [i for i in range(ws_num) if i not in failed_index]
+    return swallow_list, swallow_types, [i for i in range(ws_num) if i not in failed_index], swallow_index
 
 def get_new(df: pd.DataFrame, catheter_type: int):
     df['檢查流程'] = df['檢查流程'].fillna('None')
     ans = list(np.where(df['檢查流程']!='None')[0])
     sensors = get_sensor_num(catheter_type)
+    all_data = df[:][sensors].astype(np.float32).values 
+    all_data = (np.transpose(all_data)).tolist()
     mrs_names = ["MRS"+str(i+1) for i in range(10)]
     hh_names = ["Landmark"]
     mrs_index, hh_index = [], []
@@ -79,13 +81,14 @@ def get_new(df: pd.DataFrame, catheter_type: int):
     for i in range(len(ans)):
         test_name = df.iloc[ans[i]]['檢查流程']
         if test_name in mrs_names:
-            mrs_index.append(ans[i])
+            mrs_index.append(ans[i].item())
         
         if test_name in hh_names:
-            hh_index.append(ans[i])
-
+            hh_index.append(ans[i].item())
+    print(mrs_index)
     for i in range(len(mrs_index)):
-        mrs_i = df[mrs_index[i]-80:mrs_index[i]+520][sensors].astype(np.float32).values # 2022/0205/ mrs可能要往後抓一點
+        #mrs_i = df[mrs_index[i]-80:mrs_index[i]+520][sensors].astype(np.float32).values # 2022/0205/ mrs可能要往後抓一點
+        mrs_i = df[mrs_index[i]-80:mrs_index[i]+600][sensors].astype(np.float32).values # 2022/0213/ 
         mrs_i = np.transpose(mrs_i)
         mrs_i = mrs_i.tolist()
         mrs_list.append(mrs_i)
@@ -95,13 +98,13 @@ def get_new(df: pd.DataFrame, catheter_type: int):
         hh_i = np.transpose(hh_i)
         hh_i = hh_i.tolist()
         hh_list.append(hh_i)
-    return mrs_list, hh_list
+    return mrs_list, mrs_index, hh_list, hh_index, all_data
 
 def parsing_csv_new(df: pd.DataFrame):
     vigors, patterns, dcis, irps, dls, large_breaks, failed_index, catheter_type = get_ws_names(df)
-    swallow_list, swallow_types, swallow_index = get_ws10_new(df, len(vigors), failed_index, vigors, patterns, catheter_type)
-    mrs_list, hh_list = get_new(df, catheter_type)
-    return swallow_list, mrs_list, hh_list, catheter_type
+    swallow_list, swallow_types, failed_index, swallow_index = get_ws10_new(df, len(vigors), failed_index, vigors, patterns, catheter_type)
+    mrs_list, mrs_index, hh_list, hh_index, all_data = get_new(df, catheter_type)
+    return swallow_list, swallow_index, mrs_list, mrs_index, hh_list, hh_index, catheter_type, all_data
 
 # 這個function會回傳需要存入database的數值
 def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
@@ -117,6 +120,9 @@ def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
             sensor_num+=1
 
     sensors = [" P"+str(i+1) for i in range(sensor_num)]
+    all_data = df[:][sensors].astype(np.float32).values 
+    all_data = (np.transpose(all_data)).tolist()
+    
     ans = list(np.where(df['檢查流程']!='None')[0])
 
     hh_index, swallow_index, mrs_index = [], [], []
@@ -164,7 +170,7 @@ def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
         swallow_list.append(swallow_i)
     #print(swallow_list[0])
     print(len(swallow_list), len(mrs_list), len(hh_list))
-    return swallow_list, mrs_list, hh_list, -1
+    return swallow_list, swallow_index, mrs_list, mrs_index, hh_list, hh_index, -1, all_data
 
 
 # for 10 wet swallows 

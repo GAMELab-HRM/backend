@@ -18,9 +18,13 @@ class RawDataBase(BaseModel):
 class RawDataCreate(RawDataBase):
     filename: str 
     index: Optional[int]
+    all_raw: Optional[List]
     ws_10_raw: Optional[List]
+    ws_10_index: Optional[List]
     mrs_raw: Optional[List]
+    mrs_index: Optional[List]
     rdc_raw: Optional[List]
+    rdc_index: Optional[List]
     hh_raw: Optional[List]
-
+    hh_index: Optional[List]
 
