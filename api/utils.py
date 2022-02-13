@@ -129,25 +129,12 @@ def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
     hh_list, swallow_list, mrs_list = [], [], []
     for i in range(len(ans)):
         test_name = df.iloc[ans[i]]['檢查流程']
-        if i == len(ans)-1:
-            next_name = ""
-        else:
-            next_name = df.iloc[ans[i+1]]['檢查流程']
-        if test_name in hh_names:
-            hh_index.append(ans[i])
-            
-        if test_name in swallow_names:
-            swallow_index.append(ans[i])
-            if "Wet swallow" not in next_name:
-                swallow_index.append(ans[i+1])
-
         if test_name in mrs_names:
-            mrs_index.append(ans[i])
-            if "MRS" not in next_name:
-                if i+1<len(ans):
-                    mrs_index.append(ans[i+1])
-                else:
-                    mrs_index.append(len(df)-1)
+            mrs_index.append(ans[i].item())
+        if test_name in hh_names:
+            hh_index.append(ans[i].item())
+        if test_name in swallow_names:
+            swallow_index.append(ans[i].item())
     
     for i in range(len(hh_index)):
         hh_i = df[hh_index[i]:hh_index[i]+480][sensors].astype(np.float32).values 
@@ -155,21 +142,19 @@ def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
         hh_i = hh_i.tolist()
         hh_list.append(hh_i)
     
-    for i in range(len(mrs_index)-1):
+    for i in range(len(mrs_index)):
         #mrs_i = df[mrs_index[i]:mrs_index[i+1]][sensors].astype(np.float32).values #原本的作法
-        mrs_i = df[mrs_index[i]-80:mrs_index[i]+520][sensors].astype(np.float32).values # 2022/0205/ mrs可能要往後抓一點
+        mrs_i = df[mrs_index[i]-80:mrs_index[i]+600][sensors].astype(np.float32).values # 2022/0205/ mrs可能要往後抓一點
         mrs_i = np.transpose(mrs_i)
         mrs_i = mrs_i.tolist()
         mrs_list.append(mrs_i)
 
-    for i in range(len(swallow_index)-1):
+    for i in range(len(swallow_index)):
         #swallow_i = df[swallow_index[i]:swallow_index[i+1]][sensors].astype(np.float32).values #原本的作法
         swallow_i = df[swallow_index[i]-80:swallow_index[i]+440][sensors].astype(np.float32).values # 2021/12/07 更新,會往前多抓4秒,往後抓22秒,一個swallow共26秒
         swallow_i = np.transpose(swallow_i)
         swallow_i = swallow_i.tolist()
         swallow_list.append(swallow_i)
-    #print(swallow_list[0])
-    print(len(swallow_list), len(mrs_list), len(hh_list))
     return swallow_list, swallow_index, mrs_list, mrs_index, hh_list, hh_index, -1, all_data
 
 
