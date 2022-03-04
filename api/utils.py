@@ -3,6 +3,7 @@ import numpy as np
 import json, os, logging, datetime, shutil, pytz, pickle
 from typing import Tuple, List
 
+
 # 計算swallow type
 def compute_type(vigor: str, pattern: str) -> str:
     vigor = vigor.replace(" ","")
@@ -76,19 +77,27 @@ def get_new(df: pd.DataFrame, catheter_type: int):
     all_data = (np.transpose(all_data)).tolist()
     mrs_names = ["MRS"+str(i+1) for i in range(10)]
     hh_names = ["Landmark"]
-    mrs_index, hh_index = [], []
-    mrs_list, hh_list = [], []
+    mrs_index, hh_index, leg_index = [], [], []
+    mrs_list, hh_list, leg_list = [], [], []
+    
     for i in range(len(ans)):
         test_name = df.iloc[ans[i]]['檢查流程']
         if test_name in mrs_names:
             mrs_index.append(ans[i].item())
-        
         if test_name in hh_names:
             hh_index.append(ans[i].item())
-    print(mrs_index)
+        if "Leg Wet Swallow" in test_name:
+            leg_index.append(ans[i].item())
+            
+    for i in range(len(leg_index)):
+        leg_i = df[leg_index[i]-80:leg_index[i]+440][sensors].astype(np.float32).values 
+        leg_i = np.transpose(leg_i)
+        leg_i = leg_i.tolist()
+        leg_list.append(leg_i)
+    
     for i in range(len(mrs_index)):
         #mrs_i = df[mrs_index[i]-80:mrs_index[i]+520][sensors].astype(np.float32).values # 2022/0205/ mrs可能要往後抓一點
-        mrs_i = df[mrs_index[i]-80:mrs_index[i]+600][sensors].astype(np.float32).values # 2022/0213/ 
+        mrs_i = df[mrs_index[i]-80:mrs_index[i]+700][sensors].astype(np.float32).values # 2022/0213/ 
         mrs_i = np.transpose(mrs_i)
         mrs_i = mrs_i.tolist()
         mrs_list.append(mrs_i)
@@ -98,13 +107,13 @@ def get_new(df: pd.DataFrame, catheter_type: int):
         hh_i = np.transpose(hh_i)
         hh_i = hh_i.tolist()
         hh_list.append(hh_i)
-    return mrs_list, mrs_index, hh_list, hh_index, all_data
+    return mrs_list, mrs_index, hh_list, hh_index, leg_list, leg_index, all_data
 
 def parsing_csv_new(df: pd.DataFrame):
     vigors, patterns, dcis, irps, dls, large_breaks, failed_index, catheter_type = get_ws_names(df)
     swallow_list, swallow_types, failed_index, swallow_index = get_ws10_new(df, len(vigors), failed_index, vigors, patterns, catheter_type)
-    mrs_list, mrs_index, hh_list, hh_index, all_data = get_new(df, catheter_type)
-    return swallow_list, swallow_index, mrs_list, mrs_index, hh_list, hh_index, catheter_type, all_data
+    mrs_list, mrs_index, hh_list, hh_index, leg_list, leg_index, all_data = get_new(df, catheter_type)
+    return swallow_list, swallow_index, mrs_list, mrs_index, hh_list, hh_index, leg_list, leg_index, catheter_type, all_data
 
 # 這個function會回傳需要存入database的數值
 def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
@@ -125,8 +134,8 @@ def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
     
     ans = list(np.where(df['檢查流程']!='None')[0])
 
-    hh_index, swallow_index, mrs_index = [], [], []
-    hh_list, swallow_list, mrs_list = [], [], []
+    hh_index, swallow_index, mrs_index, leg_index = [], [], [], []
+    hh_list, swallow_list, mrs_list, leg_list = [], [], [], []
     for i in range(len(ans)):
         test_name = df.iloc[ans[i]]['檢查流程']
         if test_name in mrs_names:
@@ -135,6 +144,14 @@ def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
             hh_index.append(ans[i].item())
         if test_name in swallow_names:
             swallow_index.append(ans[i].item())
+        if "Leg Wet Swallow" in test_name:
+            leg_index.append(ans[i].item())
+    # 這邊記得，日後要拿出來用是 matrix要倒過來(plotly contour)
+    for i in range(len(leg_index)): 
+        leg_i = df[leg_index[i]-80:leg_index[i]+440][sensors].astype(np.float32).values 
+        leg_i = np.transpose(leg_i)
+        leg_i = leg_i.tolist()
+        leg_list.append(leg_i)
     
     for i in range(len(hh_index)):
         hh_i = df[hh_index[i]:hh_index[i]+480][sensors].astype(np.float32).values 
@@ -144,7 +161,7 @@ def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
     
     for i in range(len(mrs_index)):
         #mrs_i = df[mrs_index[i]:mrs_index[i+1]][sensors].astype(np.float32).values #原本的作法
-        mrs_i = df[mrs_index[i]-80:mrs_index[i]+600][sensors].astype(np.float32).values # 2022/0205/ mrs可能要往後抓一點
+        mrs_i = df[mrs_index[i]-80:mrs_index[i]+700][sensors].astype(np.float32).values # 2022/0205/ mrs可能要往後抓一點
         mrs_i = np.transpose(mrs_i)
         mrs_i = mrs_i.tolist()
         mrs_list.append(mrs_i)
@@ -155,7 +172,8 @@ def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
         swallow_i = np.transpose(swallow_i)
         swallow_i = swallow_i.tolist()
         swallow_list.append(swallow_i)
-    return swallow_list, swallow_index, mrs_list, mrs_index, hh_list, hh_index, -1, all_data
+    print(leg_index)
+    return swallow_list, swallow_index, mrs_list, mrs_index, hh_list, hh_index, leg_list, leg_index, -1, all_data
 
 
 # for 10 wet swallows 
