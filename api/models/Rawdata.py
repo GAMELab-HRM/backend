@@ -27,4 +27,6 @@ class RawDataCreate(RawDataBase):
     rdc_index: Optional[List]
     hh_raw: Optional[List]
     hh_index: Optional[List]
+    leg_raw: Optional[List]
+    leg_index: Optional[List]
 
