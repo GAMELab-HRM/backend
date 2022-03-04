@@ -1,7 +1,7 @@
 from numpy import record
 from sqlalchemy.orm import Session 
 import db_model.models as dbmodels 
-from models import Patient, Rawdata, WetSwallow, TimeRecord, MRS, HiatalHernia
+from models import Patient, Rawdata, WetSwallow, TimeRecord, MRS, HiatalHernia, Leg
 from uuid import UUID, uuid4 
 import pickle
 
@@ -12,8 +12,11 @@ def create_rawdata(db: Session, data: Rawdata.RawDataCreate):
     swallow_list_binary = pickle.dumps(data.ws_10_raw)
     mrs_list_binary = pickle.dumps(data.mrs_raw)
     hh_list_binary = pickle.dumps(data.hh_raw)
+    leg_list_binary = pickle.dumps(data.leg_raw)
     all_raw_binary = pickle.dumps(data.all_raw)
-    db_rawdata = dbmodels.Raw_Data(filename=data.filename, record_id=data.record_id, hh_raw=hh_list_binary, ws_10_raw=swallow_list_binary, mrs_raw=mrs_list_binary,all_raw=all_raw_binary, ws_10_index=data.ws_10_index, mrs_index=data.mrs_index, hh_index=data.hh_index)
+    db_rawdata = dbmodels.Raw_Data(filename=data.filename, record_id=data.record_id, 
+        hh_raw=hh_list_binary, ws_10_raw=swallow_list_binary, mrs_raw=mrs_list_binary, leg_raw=leg_list_binary, all_raw=all_raw_binary, 
+        ws_10_index=data.ws_10_index, mrs_index=data.mrs_index, hh_index=data.hh_index, leg_index=data.leg_index)
     db.add(db_rawdata)
     db.commit()
     db.refresh(db_rawdata)
@@ -211,6 +214,18 @@ def update_hh_result(db: Session, hh_result, record_id, doctor_id):
     db.commit()
     db.flush()
     return updated_hh
+
+
+"""
+CRUD for Leg
+"""
+def create_leg(db: Session, leg_data:Leg.LegCreate):
+    db_leg = dbmodels.Leg(record_id=leg_data.record_id, doctor_id=leg_data.doctor_id, leg_metric=leg_data.leg_metric, draw_info=leg_data.draw_info)
+    db.add(db_leg)
+    db.commit()
+    db.refresh(db_leg)
+    return db_leg
+
 
 
 """
