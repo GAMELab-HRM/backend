@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware import Middleware
-from routers import hiatal, swallows, mrs, rdc, patient, files, table, auth
+from routers import hiatal, swallows, mrs, rdc, patient, files, table, auth, modify
 from utils import *
 from typing import List 
 
@@ -27,6 +27,7 @@ app.include_router(patient.router)
 app.include_router(files.router)
 app.include_router(table.router)
 app.include_router(auth.router)
+app.include_router(modify.router)
 
 """
 TEST endpoint
