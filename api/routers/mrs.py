@@ -39,7 +39,7 @@ def get_mrs_rawdata(record_id:UUID, db: Session = Depends(get_db)):
 [GET] 前端取得mrs的ept-metrics數值
 [PUT] 前端更新mrs的ept-metrics數值
 """
-@router.get("/metrics", dependencies=[Depends(JWTBearer())])
+@router.get("/metrics")
 def get_mrs_metric(record_id: UUID, doctor_id: int, db: Session = Depends(get_db)):
     mrs_metric = crud.get_mrs_metric(db, record_id, doctor_id)
     return mrs_metric
@@ -55,7 +55,7 @@ def update_mrs_metric(request: Dict[Any, Any], record_id: UUID, doctor_id: int, 
 [GET] 前端取得mrs畫線的資訊
 [PUT] 前端更新mrs畫線的資訊
 """
-@router.get("/drawinfo", dependencies=[Depends(JWTBearer())])
+@router.get("/drawinfo")
 def get_mrs_drawinfo(record_id: UUID, doctor_id: int, db: Session = Depends(get_db)):
     mrs_drawinfo = crud.get_mrs_drawinfo(db, record_id, doctor_id)
     return mrs_drawinfo

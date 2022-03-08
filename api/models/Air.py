@@ -6,12 +6,12 @@ from uuid import UUID, uuid4
 '''
 Response or Request format 
 '''
-class LegBase(BaseModel):
+class AirBase(BaseModel):
     record_id: UUID = Field(default_factory=uuid4)
 
-class LegCreate(LegBase):
+class AirCreate(AirBase):
     doctor_id: int
-    leg_metric: dict 
-    draw_info: dict
+    air_metric: dict 
+
 
 

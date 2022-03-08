@@ -19,6 +19,7 @@ class Patient_info(Base):
     mrs_data = relationship("Mrs", back_populates="patient", cascade="all, delete", passive_deletes=True)
     hh_data = relationship("Hiatal_Hernia", back_populates="patient", cascade="all, delete", passive_deletes=True)
     leg_data = relationship("Leg", back_populates="patient", cascade="all, delete", passive_deletes=True)
+    air_data = relationship("Air", back_populates="patient", cascade="all, delete", passive_deletes=True)
 
 class Doctor_info(Base):
     __tablename__ = "doctor_info"
@@ -29,7 +30,8 @@ class Doctor_info(Base):
     mrs_data = relationship("Mrs", back_populates="doctor")
     hh_data = relationship("Hiatal_Hernia", back_populates="doctor")
     leg_data = relationship("Leg", back_populates="doctor")
-
+    air_data = relationship("Air", back_populates="doctor")
+    
 class Wet_swallows_10(Base):
     __tablename__ = "wet_swallows_10"
     index = Column(Integer, primary_key=True)
@@ -47,6 +49,15 @@ class Wet_swallows_10(Base):
     pressure_min = Column(Integer)
     patient = relationship("Patient_info", back_populates="ws_data")
     doctor = relationship("Doctor_info", back_populates="ws_data")
+
+class Air(Base):
+    __tablename__ = "air"
+    index = Column(Integer, primary_key=True)
+    record_id = Column(UUID(as_uuid=True), ForeignKey("patient_info.record_id", ondelete="CASCADE"), nullable=False, default=uuid.uuid4)
+    doctor_id = Column(Integer, ForeignKey("doctor_info.doctor_id"), nullable=False)
+    air_metric = Column(JSON, default={})
+    patient = relationship("Patient_info", back_populates="air_data")
+    doctor = relationship("Doctor_info", back_populates="air_data")
     
 class Mrs(Base):
     __tablename__ = "mrs"

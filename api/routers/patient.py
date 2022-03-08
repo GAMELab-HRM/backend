@@ -1,9 +1,8 @@
 from fastapi import APIRouter 
 from fastapi import Request, Form, File ,UploadFile, Depends
 from typing import List
-from utils import save_file
-import shutil
-import crud 
+import crud, pickle
+import numpy as np
 from sqlalchemy.orm import Session 
 from db_model.database import SessionLocal, engine
 from models import Patient
@@ -40,7 +39,15 @@ def delete_patient(record_id:UUID, db: Session = Depends(get_db)):
 
 @router.get("/catheter", response_model=Patient.PatientCatheter)
 def get_catheter_type(record_id: UUID, db: Session = Depends(get_db)):
+    mrs_rawdata = crud.get_mrs_rawdata(db, record_id)
+    retv = pickle.loads(mrs_rawdata[0].mrs_raw)
     catheter_type = crud.get_catheter(record_id, db)[0]
+    # 因為-1 表示舊資料，有可能是20or22個sensor
+    if catheter_type == -1:
+        if np.array(retv[0]).shape[0] == 20:
+            catheter_type = 5 
+        elif np.array(retv[0]).shape[0]==22: 
+            catheter_type = 3
     return {
         "record_id": record_id,
         "catheter_type": catheter_type

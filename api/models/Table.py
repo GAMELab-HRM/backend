@@ -25,7 +25,9 @@ class AllTable(TableBase):
     last_update: datetime 
     ws_result: Optional[str] = None 
     mrs_result: Optional[str] = None 
+    mrs_draw: Optional[bool] = None 
     hiatal_hernia_result: Optional[str] = None  
+    hh_draw: Optional[bool] = None
     rip_result: Optional[str] = None 
 
     class Config:

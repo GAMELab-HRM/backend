@@ -1,7 +1,7 @@
 from numpy import record
 from sqlalchemy.orm import Session 
 import db_model.models as dbmodels 
-from models import Patient, Rawdata, WetSwallow, TimeRecord, MRS, HiatalHernia, Leg
+from models import Patient, Rawdata, WetSwallow, TimeRecord, MRS, HiatalHernia, Leg, Air
 from uuid import UUID, uuid4 
 import pickle
 
@@ -39,6 +39,12 @@ def get_hh_rawdata(db: Session, record_id):
         (dbmodels.Raw_Data.record_id==record_id)
     ).all()
     return ans     
+
+def get_leg_rawdata(db: Session, record_id):
+    ans = db.query(dbmodels.Raw_Data.leg_raw).filter(
+        (dbmodels.Raw_Data.record_id==record_id)
+    ).all()
+    return ans 
 
 """
 CRUD for patient 
@@ -105,8 +111,6 @@ def create_mrs(db: Session, mrs_data:MRS.MrsCreate):
     db.commit()
     db.refresh(db_mrs)
     return db_mrs 
-
-
 
 def update_mrs(db: Session, data):
     updated_mrs = db.query(dbmodels.Mrs).filter(
@@ -215,6 +219,29 @@ def update_hh_result(db: Session, hh_result, record_id, doctor_id):
     db.flush()
     return updated_hh
 
+"""
+CRUD for Air
+"""
+def create_air(db: Session, air_data:Air.AirCreate):
+    db_air = dbmodels.Air(record_id=air_data.record_id, doctor_id=air_data.doctor_id, air_metric=air_data.air_metric)
+    db.add(db_air)
+    db.commit()
+    db.refresh(db_air)
+    return db_air
+
+def get_air_metric(db: Session, record_id, doctor_id):
+    ans = db.query(dbmodels.Air.air_metric).filter(
+        (dbmodels.Air.record_id==record_id) & (dbmodels.Air.doctor_id==doctor_id)
+    ).all()
+    return ans[0].air_metric 
+
+def update_air_metric(db: Session, air_metric, record_id, doctor_id):
+    updated_air = db.query(dbmodels.Air).filter(
+        (dbmodels.Air.record_id == record_id) & (dbmodels.Air.doctor_id == doctor_id)
+    ).update({"air_metric":air_metric})
+    db.commit()
+    db.flush()
+    return updated_air
 
 """
 CRUD for Leg
@@ -226,6 +253,47 @@ def create_leg(db: Session, leg_data:Leg.LegCreate):
     db.refresh(db_leg)
     return db_leg
 
+def get_leg_metric(db: Session, record_id, doctor_id):
+    ans = db.query(dbmodels.Leg.leg_metric).filter(
+        (dbmodels.Leg.record_id==record_id) & (dbmodels.Leg.doctor_id==doctor_id)
+    ).all()
+    return ans[0].leg_metric 
+
+def get_leg_drawinfo(db: Session, record_id, doctor_id):
+    leg_drawinfo = db.query(dbmodels.Leg.draw_info).filter(
+        (dbmodels.Leg.record_id == record_id) & (dbmodels.Leg.doctor_id == doctor_id)       
+    ).all()
+    return leg_drawinfo[0].draw_info
+
+def get_leg_reesult(db: Session, record_id, doctor_id):
+    leg_result = db.query(dbmodels.Leg.leg_result).filter(
+        (dbmodels.Leg.record_id == record_id) & (dbmodels.Leg.doctor_id == doctor_id)      
+    ).all()
+    return leg_result[0].leg_result
+
+def update_leg_metric(db: Session, leg_metric, record_id, doctor_id):
+    updated_leg = db.query(dbmodels.Leg).filter(
+        (dbmodels.Leg.record_id == record_id) & (dbmodels.Leg.doctor_id == doctor_id)
+    ).update({"leg_metric":leg_metric})
+    db.commit()
+    db.flush()
+    return updated_leg
+
+def update_leg_drawinfo(db: Session, leg_draw_data, record_id, doctor_id):
+    updated_leg = db.query(dbmodels.Leg).filter(
+        (dbmodels.Leg.record_id == record_id) & (dbmodels.Leg.doctor_id == doctor_id)
+    ).update({"draw_info":leg_draw_data})
+    db.commit()
+    db.flush()
+    return updated_leg
+
+def update_leg_result(db: Session, leg_result, record_id, doctor_id):
+    updated_leg = db.query(dbmodels.Leg).filter(
+        (dbmodels.Leg.record_id == record_id) & (dbmodels.Leg.doctor_id == doctor_id)
+    ).update(leg_result)
+    db.commit()
+    db.flush()
+    return updated_leg
 
 
 """
