@@ -15,3 +15,5 @@ class LegCreate(LegBase):
     draw_info: dict
 
 
+class LegResult(BaseModel):
+    SLR_result: str

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from numpy import record
-from models import WetSwallow, MRS, HiatalHernia
+from models import WetSwallow, MRS, HiatalHernia, Leg
 from models.Rawdata import WsData 
 from sqlalchemy.orm import Session 
 from db_model.database import SessionLocal, engine # important
@@ -70,11 +70,10 @@ def get_leg_result(record_id: UUID, doctor_id: int, db: Session = Depends(get_db
     }
 
 @router.put("/result")
-def update_leg_result(request: HiatalHernia.HiatalHerniaResult, record_id: UUID, doctor_id: int, db: Session = Depends(get_db)):
+def update_leg_result(request: Leg.LegResult, record_id: UUID, doctor_id: int, db: Session = Depends(get_db)):
     request = request.dict()
     temp = {
-        "hiatal_hernia_result": request["hh_result"],
-        "rip_result": request["rip_result"]
+        "leg_result": request["SLR_result"],
     }
     updated_leg_result = crud.update_leg_result(db, temp, record_id, doctor_id)
     return updated_leg_result

@@ -1,5 +1,6 @@
 from numpy import record
 from sqlalchemy.orm import Session 
+from sqlalchemy import asc
 import db_model.models as dbmodels 
 from models import Patient, Rawdata, WetSwallow, TimeRecord, MRS, HiatalHernia, Leg, Air
 from uuid import UUID, uuid4 
@@ -325,34 +326,28 @@ def get_upload_info(db: Session):
     return result 
 
 def get_all_info(db: Session):
-    result = db.query(
-        dbmodels.Patient_info.record_id,
-        dbmodels.Patient_info.patient_id,
-        dbmodels.Time_Record.doctor_id,
-        dbmodels.Raw_Data.filename,
-        dbmodels.Time_Record.last_update,
-        dbmodels.Wet_swallows_10.ws_result,
-        dbmodels.Mrs.mrs_result,
-        dbmodels.Hiatal_Hernia.hiatal_hernia_result,
-        dbmodels.Hiatal_Hernia.rip_result
-    ).filter(
-        (dbmodels.Patient_info.record_id == dbmodels.Raw_Data.record_id) 
-        & (dbmodels.Patient_info.record_id == dbmodels.Wet_swallows_10.record_id) 
-        & (dbmodels.Patient_info.record_id == dbmodels.Time_Record.record_id)
-        & (dbmodels.Patient_info.record_id == dbmodels.Mrs.record_id)
-        & (dbmodels.Patient_info.record_id == dbmodels.Hiatal_Hernia.record_id)
-    ).filter(
-        (dbmodels.Time_Record.doctor_id == dbmodels.Wet_swallows_10.doctor_id)
-        & (dbmodels.Time_Record.doctor_id == dbmodels.Mrs.doctor_id)
-        & (dbmodels.Time_Record.doctor_id == dbmodels.Hiatal_Hernia.doctor_id)
-    ).filter(
-        (dbmodels.Time_Record.doctor_id != -1) 
-        &(dbmodels.Wet_swallows_10.doctor_id != -1)
-        &(dbmodels.Mrs.doctor_id != -1)
-        &(dbmodels.Hiatal_Hernia.doctor_id != -1)
-    ).all()
-    return result 
-
+    retv = []
+    res = db.query(dbmodels.Patient_info.patient_id, dbmodels.Patient_info.record_id).all()
+    for i in res: 
+        filename = dict(db.query(dbmodels.Raw_Data.filename).filter(dbmodels.Raw_Data.record_id==i[1]).all()[0])
+        for j in range(2): # two doctors
+            lastupdate = dict(db.query(dbmodels.Time_Record.last_update).filter((dbmodels.Time_Record.record_id==i[1])&(dbmodels.Time_Record.doctor_id==j)).all()[0])
+            ws_result = dict(db.query(dbmodels.Wet_swallows_10.ws_result).filter(
+                (dbmodels.Wet_swallows_10.record_id==i[1]) & (dbmodels.Wet_swallows_10.doctor_id==j)
+            ).all()[0])
+            mrs_result = dict(db.query(dbmodels.Mrs.mrs_result).filter(
+                (dbmodels.Mrs.record_id==i[1]) & (dbmodels.Mrs.doctor_id==j)
+            ).all()[0])
+            hh_result = dict(db.query(dbmodels.Hiatal_Hernia.hiatal_hernia_result, dbmodels.Hiatal_Hernia.rip_result).filter(
+                (dbmodels.Hiatal_Hernia.record_id==i[1]) & (dbmodels.Hiatal_Hernia.doctor_id==j)
+            ).all()[0])
+            leg_result = dict(db.query(dbmodels.Leg.leg_result, dbmodels.Leg.leg_metric).filter(
+                (dbmodels.Leg.record_id==i[1]) & (dbmodels.Leg.doctor_id==j)
+            ).all()[0])
+            leg_result['leg_exist']=False if leg_result['leg_metric'] == {} else True
+            del leg_result['leg_metric']
+            retv.append({**dict(i), **{"doctor_id": j}, **filename, **lastupdate, **ws_result, **mrs_result, **hh_result, **leg_result})
+    return retv 
 
 """
 CRUD for demoing

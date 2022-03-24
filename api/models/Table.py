@@ -1,3 +1,4 @@
+from optparse import Option
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
@@ -29,6 +30,7 @@ class AllTable(TableBase):
     hiatal_hernia_result: Optional[str] = None  
     hh_draw: Optional[bool] = None
     rip_result: Optional[str] = None 
-
+    leg_result: Optional[str] = None 
+    leg_exist: Optional[bool] = None 
     class Config:
         orm_mode = True 

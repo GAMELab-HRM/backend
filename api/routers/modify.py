@@ -23,10 +23,10 @@ def get_db():
 def init_air_metric(length: int):
     temp = {}
     if length!=0:
-        temp["dcis"] = []
-        temp["irp4s"] = []
-        temp["dls"] = []
-        temp["breaks"] = []
+        temp["dcis"] = [0 for i in range(length)]
+        temp["irp4s"] = [0 for i in range(length)]
+        temp["dls"] = [0 for i in range(length)]
+        temp["breaks"] = [0 for i in range(length)]
         temp["SPR"] = 0
         temp["ERL"] = 0
     return temp
@@ -82,11 +82,11 @@ def upload_swallow_file(record_id: UUID, request:Request, files: UploadFile = Fi
     """
     更新Air table
     """
-    # air_patient = db.query(dbmodels.Air.record_id).filter(dbmodels.Air.record_id==record_id).all()
-    # if len(air_patient)==0:
-    #     for i in [0, 1, -1]:
-    #         db_air = crud.create_air(db, Air.AirCreate(record_id=record_id, doctor_id=i, air_metric = init_air_metric(len(air_index))))
-    #     air_modify = True 
+    air_patient = db.query(dbmodels.Air.record_id).filter(dbmodels.Air.record_id==record_id).all()
+    if len(air_patient)==0:
+        for i in [0, 1, -1]:
+            db_air = crud.create_air(db, Air.AirCreate(record_id=record_id, doctor_id=i, air_metric = init_air_metric(len(air_index))))
+        air_modify = True 
     """
     更新Leg table 
     (先前上傳的資料 在這個table上是沒有任何資料的)

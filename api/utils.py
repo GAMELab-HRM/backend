@@ -88,7 +88,7 @@ def get_new(df: pd.DataFrame, catheter_type: int):
             hh_index.append(ans[i].item())
         if "Leg Wet Swallow" in test_name:
             leg_index.append(ans[i].item())
-        if "air" in test_name or "Air" in test_name:
+        if "air before" in test_name or "Air Before" in test_name:
             air_index.append(ans[i].item())
             
     for i in range(len(leg_index)):
@@ -148,7 +148,7 @@ def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
             swallow_index.append(ans[i].item())
         if "Leg Wet Swallow" in test_name:
             leg_index.append(ans[i].item())
-        if "air" in test_name or "Air" in test_name:
+        if "air before" in test_name or "Air Before" in test_name:
             air_index.append(ans[i].item())
             
     # 這邊記得，日後要拿出來用是 matrix要倒過來(plotly contour)

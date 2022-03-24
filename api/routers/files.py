@@ -23,10 +23,10 @@ def get_db():
 def init_air_metric(length: int):
     temp = {}
     if length!=0:
-        temp["dcis"] = []
-        temp["irp4s"] = []
-        temp["dls"] = []
-        temp["breaks"] = []
+        temp["dcis"] = [0 for i in range(length)]
+        temp["irp4s"] = [0 for i in range(length)]
+        temp["dls"] = [0 for i in range(length)]
+        temp["breaks"] = [0 for i in range(length)]
         temp["SPR"] = 0
         temp["ERL"] = 0
     return temp
@@ -132,7 +132,7 @@ def upload_swallow_file(request:Request, files: UploadFile = File(...), db: Sess
         db_mrs = crud.create_mrs(db, MRS.MrsCreate(record_id=record_id, doctor_id=i, mrs_metric = init_mrs_metric(len(mrs_list)), draw_info = init_mrs_drawinfo(len(mrs_list))))
         db_hh = crud.create_hh(db, HiatalHernia.HiatalHerniaCreate(record_id=record_id, doctor_id=i, hh_metric=init_hh_metric(), draw_info=init_hh_drawinfo()))
         db_leg = crud.create_leg(db, Leg.LegCreate(record_id=record_id, doctor_id=i, leg_metric=init_leg_metric(len(leg_list)), draw_info=init_leg_drawinfo(len(leg_list))))
-        #db_air = crud.create_air(db, Air.AirCreate(record_id=record_id, doctor_id=i, air_metric=init_air_metric(len(air_index))))
+        db_air = crud.create_air(db, Air.AirCreate(record_id=record_id, doctor_id=i, air_metric=init_air_metric(len(air_index))))
     return{
         "status":"success",
     }
