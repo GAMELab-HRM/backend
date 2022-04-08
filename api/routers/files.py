@@ -97,7 +97,8 @@ def upload_swallow_file(request:Request, files: UploadFile = File(...), db: Sess
     save_df, save_df.columns = df[1:], df.iloc[0]
 
     filename = files.filename
-    patient_id = str(df.loc[0,1])[-4:]
+    #patient_id = str(df.loc[0,1])[-4:]
+    patient_id = filename.split("-")[0]
     if "ws_10_vigor" in new_df.columns: 
         print(filename, "新資料格式")
         swallow_list, swallow_index, mrs_list, mrs_index, hh_list, hh_index, leg_list, leg_index, air_index, catheter_type, all_data = parsing_csv_new(new_df)

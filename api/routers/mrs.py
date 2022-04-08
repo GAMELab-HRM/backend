@@ -4,10 +4,11 @@ from models.Rawdata import WsData
 from sqlalchemy.orm import Session 
 from db_model.database import SessionLocal, engine # important
 from typing import Dict, Any
-import crud, pickle, json
+import crud, pickle, json, zlib, base64
 import pandas as pd 
 from uuid import UUID
 from auth.auth_bearer import JWTBearer 
+from fastapi.encoders import jsonable_encoder
 
 router = APIRouter(
     prefix="/api/v1/mrs",
@@ -25,13 +26,17 @@ def get_db():
 處理MRS raw data 
 [GET] 取得mrs的raw data
 """
-@router.get("/rawdata", dependencies=[Depends(JWTBearer())])
+@router.get("/rawdata")
 def get_mrs_rawdata(record_id:UUID, db: Session = Depends(get_db)):
     mrs_rawdata = crud.get_mrs_rawdata(db, record_id)
     retv = pickle.loads(mrs_rawdata[0].mrs_raw)
-    return {
-        "rawdata":json.dumps(retv)
+    retv = json.dumps(retv)
+    compressed = zlib.compress(retv.encode())
+    ans = {
+        "rawdata": compressed
     }
+    json_compatible_item_data  = jsonable_encoder(ans, custom_encoder={bytes: lambda v: base64.b64encode(v).decode('utf-8')})
+    return json_compatible_item_data
 
 """
 處理MRS EPT-metric

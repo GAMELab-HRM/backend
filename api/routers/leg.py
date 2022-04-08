@@ -5,10 +5,12 @@ from models.Rawdata import WsData
 from sqlalchemy.orm import Session 
 from db_model.database import SessionLocal, engine # important
 from typing import Dict, Any
-import crud, pickle, json
+import crud, pickle, json, zlib, base64 
 import pandas as pd 
 from uuid import UUID
 from auth.auth_bearer import JWTBearer 
+from fastapi.encoders import jsonable_encoder
+
 router = APIRouter(
     prefix="/api/v1/leg",
     tags=["Leg Wet Swallow"]
@@ -36,9 +38,13 @@ def get_leg_rawdata(record_id:UUID, db: Session = Depends(get_db)):
         }
     else: 
         retv = pickle.loads(leg_rawdata[0].leg_raw)
-        return {
-            "rawdata":json.dumps(retv)
+        retv = json.dumps(retv)
+        compressed = zlib.compress(retv.encode())
+        ans = {
+            "rawdata": compressed
         }
+        json_compatible_item_data  = jsonable_encoder(ans, custom_encoder={bytes: lambda v: base64.b64encode(v).decode('utf-8')})
+        return json_compatible_item_data
 
 @router.get("/metrics")
 def get_leg_metric(record_id: UUID, doctor_id: int, db: Session = Depends(get_db)):
