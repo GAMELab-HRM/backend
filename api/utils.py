@@ -68,7 +68,7 @@ def get_ws10_new(df: pd.DataFrame, ws_num: int, failed_index: List, vigors: List
         swallow_i = swallow_i.tolist()
         swallow_list.append(swallow_i)
     return swallow_list, swallow_types, [i for i in range(ws_num) if i not in failed_index], swallow_index
-
+# 0424
 def get_new(df: pd.DataFrame, catheter_type: int):
     df['檢查流程'] = df['檢查流程'].fillna('None')
     ans = list(np.where(df['檢查流程']!='None')[0])
@@ -77,8 +77,8 @@ def get_new(df: pd.DataFrame, catheter_type: int):
     all_data = (np.transpose(all_data)).tolist()
     mrs_names = ["MRS"+str(i+1) for i in range(10)]
     hh_names = ["Landmark"]
-    mrs_index, hh_index, leg_index, air_index = [], [], [], []
-    mrs_list, hh_list, leg_list = [], [], []
+    mrs_index, hh_index, leg_index, air_index, resting_index = [], [], [], [], []
+    mrs_list, hh_list, leg_list, resting_list = [], [], [], []
     
     for i in range(len(ans)):
         test_name = df.iloc[ans[i]]['檢查流程']
@@ -90,7 +90,8 @@ def get_new(df: pd.DataFrame, catheter_type: int):
             leg_index.append(ans[i].item())
         if "air before" in test_name or "Air Before" in test_name:
             air_index.append(ans[i].item())
-            
+        if "Resting" in test_name:
+            resting_index.append(ans[i].item())
     for i in range(len(leg_index)):
         leg_i = df[leg_index[i]-80:leg_index[i]+440][sensors].astype(np.float32).values 
         leg_i = np.transpose(leg_i)
@@ -109,13 +110,21 @@ def get_new(df: pd.DataFrame, catheter_type: int):
         hh_i = np.transpose(hh_i)
         hh_i = hh_i.tolist()
         hh_list.append(hh_i)
-    return mrs_list, mrs_index, hh_list, hh_index, leg_list, leg_index, air_index, all_data
+    # 0424
+    for i in range(0, len(resting_index) - 1, 2):
+        resting_i = df[resting_index[i]:resting_index[i+1]][sensors].astype(np.float32).values 
+        resting_i = np.transpose(resting_i)
+        resting_i = resting_i.tolist()
+        resting_list.append(resting_i)
+        
+    
+    return mrs_list, mrs_index, hh_list, hh_index, leg_list, leg_index, air_index, resting_list, resting_index, all_data
 
 def parsing_csv_new(df: pd.DataFrame):
     vigors, patterns, dcis, irps, dls, large_breaks, failed_index, catheter_type = get_ws_names(df)
     swallow_list, swallow_types, failed_index, swallow_index = get_ws10_new(df, len(vigors), failed_index, vigors, patterns, catheter_type)
-    mrs_list, mrs_index, hh_list, hh_index, leg_list, leg_index, air_index, all_data = get_new(df, catheter_type)
-    return swallow_list, swallow_index, mrs_list, mrs_index, hh_list, hh_index, leg_list, leg_index, air_index, catheter_type, all_data
+    mrs_list, mrs_index, hh_list, hh_index, leg_list, leg_index, air_index, resting_list, resting_index, all_data = get_new(df, catheter_type)
+    return swallow_list, swallow_index, mrs_list, mrs_index, hh_list, hh_index, leg_list, leg_index, air_index, resting_list, resting_index, catheter_type, all_data
 
 # 這個function會回傳需要存入database的數值
 def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
@@ -136,8 +145,8 @@ def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
     
     ans = list(np.where(df['檢查流程']!='None')[0])
 
-    hh_index, swallow_index, mrs_index, leg_index, air_index = [], [], [], [], []
-    hh_list, swallow_list, mrs_list, leg_list = [], [], [], []
+    hh_index, swallow_index, mrs_index, leg_index, air_index, resting_index = [], [], [], [], [], []
+    hh_list, swallow_list, mrs_list, leg_list, resting_list = [], [], [], [], []
     for i in range(len(ans)):
         test_name = df.iloc[ans[i]]['檢查流程']
         if test_name in mrs_names:
@@ -150,6 +159,8 @@ def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
             leg_index.append(ans[i].item())
         if "air before" in test_name or "Air Before" in test_name:
             air_index.append(ans[i].item())
+        if "Resting" in test_name:
+            resting_index.append(ans[i].item())
             
     # 這邊記得，日後要拿出來用是 matrix要倒過來(plotly contour)
     for i in range(len(leg_index)): 
@@ -177,8 +188,15 @@ def parsing_csv(df: pd.DataFrame) -> Tuple[List, List, List, int]:
         swallow_i = np.transpose(swallow_i)
         swallow_i = swallow_i.tolist()
         swallow_list.append(swallow_i)
-    print(leg_index)
-    return swallow_list, swallow_index, mrs_list, mrs_index, hh_list, hh_index, leg_list, leg_index, air_index, -1, all_data
+        
+    # 0424
+    for i in range(0, len(resting_index) - 1, 2):
+        resting_i = df[resting_index[i]:resting_index[i+1]][sensors].astype(np.float32).values 
+        resting_i = np.transpose(resting_i)
+        resting_i = resting_i.tolist()
+        resting_list.append(resting_i)
+        
+    return swallow_list, swallow_index, mrs_list, mrs_index, hh_list, hh_index, leg_list, leg_index, air_index, resting_list, resting_index, -1, all_data
 
 
 # for 10 wet swallows 

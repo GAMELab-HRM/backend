@@ -18,6 +18,7 @@ class Patient_info(Base):
     time_data = relationship("Time_Record", back_populates="patient", cascade="all, delete", passive_deletes=True)
     mrs_data = relationship("Mrs", back_populates="patient", cascade="all, delete", passive_deletes=True)
     hh_data = relationship("Hiatal_Hernia", back_populates="patient", cascade="all, delete", passive_deletes=True)
+    resting_data = relationship("Resting", back_populates="patient", cascade="all, delete", passive_deletes=True)
     leg_data = relationship("Leg", back_populates="patient", cascade="all, delete", passive_deletes=True)
     air_data = relationship("Air", back_populates="patient", cascade="all, delete", passive_deletes=True)
 
@@ -29,6 +30,7 @@ class Doctor_info(Base):
     time_data = relationship("Time_Record", back_populates="doctor")
     mrs_data = relationship("Mrs", back_populates="doctor")
     hh_data = relationship("Hiatal_Hernia", back_populates="doctor")
+    resting_data = relationship("Resting", back_populates="doctor")
     leg_data = relationship("Leg", back_populates="doctor")
     air_data = relationship("Air", back_populates="doctor")
     
@@ -87,6 +89,21 @@ class Hiatal_Hernia(Base):
     patient = relationship("Patient_info", back_populates="hh_data")
     doctor = relationship("Doctor_info", back_populates="hh_data")
 
+class Resting(Base):
+    __tablename__ = "resting"
+    index = Column(Integer, primary_key=True)
+    record_id = Column(UUID(as_uuid=True), ForeignKey("patient_info.record_id", ondelete="CASCADE"), nullable=False, default=uuid.uuid4)
+    draw_info = Column(JSON, default={})
+    resting_metric = Column(JSON, default={})
+    resting_result = Column(String, default=[])
+    rip_result = Column(String, default=[])
+    doctor_id = Column(Integer, ForeignKey("doctor_info.doctor_id"), nullable=False)
+    pressure_max = Column(Integer)
+    pressure_min = Column(Integer)
+    black_line = Column(Integer)
+    patient = relationship("Patient_info", back_populates="resting_data")
+    doctor = relationship("Doctor_info", back_populates="resting_data")
+
 class Leg(Base):
     __tablename__ = "leg"
     index = Column(Integer, primary_key=True)
@@ -114,6 +131,8 @@ class Raw_Data(Base):
     hh_index = Column(ARRAY(Integer))
     leg_raw = Column(LargeBinary)
     leg_index = Column(ARRAY(Integer))
+    resting_raw = Column(LargeBinary)
+    resting_index = Column(ARRAY(Integer))
     patient = relationship("Patient_info", back_populates="rawdata")
 
 class Time_Record(Base):

@@ -76,7 +76,7 @@ def update_mrs_drawinfo(request: Dict[Any, Any], record_id: UUID, doctor_id: int
 [GET] 前端取得mrs的結果 
 [PUT] 前端更新mrs的結果
 """
-@router.get("/result", response_model=MRS.MrsResult, dependencies=[Depends(JWTBearer())])
+@router.get("/result", response_model=MRS.MrsResult, )
 def get_mrs_result(record_id: UUID, doctor_id: int, db: Session = Depends(get_db)):
     mrs_result = crud.get_mrs_result(db, record_id, doctor_id)
     return MRS.MrsResult(mrs_result = mrs_result)

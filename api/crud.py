@@ -2,7 +2,7 @@ from numpy import record
 from sqlalchemy.orm import Session 
 from sqlalchemy import asc
 import db_model.models as dbmodels 
-from models import Patient, Rawdata, WetSwallow, TimeRecord, MRS, HiatalHernia, Leg, Air
+from models import Patient, Rawdata, WetSwallow, TimeRecord, MRS, HiatalHernia, Leg, Air, Resting
 from uuid import UUID, uuid4 
 import pickle
 
@@ -15,9 +15,10 @@ def create_rawdata(db: Session, data: Rawdata.RawDataCreate):
     hh_list_binary = pickle.dumps(data.hh_raw)
     leg_list_binary = pickle.dumps(data.leg_raw)
     all_raw_binary = pickle.dumps(data.all_raw)
+    resting_list_binary = pickle.dumps(data.resting_raw)
     db_rawdata = dbmodels.Raw_Data(filename=data.filename, record_id=data.record_id, 
-        hh_raw=hh_list_binary, ws_10_raw=swallow_list_binary, mrs_raw=mrs_list_binary, leg_raw=leg_list_binary, all_raw=all_raw_binary, 
-        ws_10_index=data.ws_10_index, mrs_index=data.mrs_index, hh_index=data.hh_index, leg_index=data.leg_index)
+        hh_raw=hh_list_binary, ws_10_raw=swallow_list_binary, mrs_raw=mrs_list_binary, leg_raw=leg_list_binary, all_raw=all_raw_binary, resting_raw = resting_list_binary,
+        ws_10_index=data.ws_10_index, mrs_index=data.mrs_index, hh_index=data.hh_index, leg_index=data.leg_index, resting_index=data.resting_index)
     db.add(db_rawdata)
     db.commit()
     db.refresh(db_rawdata)
@@ -39,7 +40,13 @@ def get_hh_rawdata(db: Session, record_id):
     ans = db.query(dbmodels.Raw_Data.hh_raw).filter(
         (dbmodels.Raw_Data.record_id==record_id)
     ).all()
-    return ans     
+    return ans   
+  
+def get_resting_rawdata(db: Session, record_id):
+    ans = db.query(dbmodels.Raw_Data.resting_raw).filter(
+        (dbmodels.Raw_Data.record_id==record_id)
+    ).all()
+    return ans    
 
 def get_leg_rawdata(db: Session, record_id):
     ans = db.query(dbmodels.Raw_Data.leg_raw).filter(
@@ -219,6 +226,60 @@ def update_hh_result(db: Session, hh_result, record_id, doctor_id):
     db.commit()
     db.flush()
     return updated_hh
+
+"""
+CRUD for Resting
+"""
+def create_resting(db: Session, resting_data:Resting.RestingCreate):
+    db_resting = dbmodels.Resting(record_id=resting_data.record_id, doctor_id=resting_data.doctor_id, 
+                                  resting_result=resting_data.resting_result, rip_result=resting_data.rip_result,
+                                  resting_metric=resting_data.resting_metric, draw_info=resting_data.draw_info)
+    db.add(db_resting)
+    db.commit()
+    db.refresh(db_resting)
+    return db_resting
+
+def get_resting_metric(db: Session, record_id, doctor_id):
+    ans = db.query(dbmodels.Resting.resting_metric).filter(
+        (dbmodels.Resting.record_id==record_id) & (dbmodels.Resting.doctor_id==doctor_id)
+    ).all()
+    return ans[0].resting_metric 
+
+def get_resting_drawinfo(db: Session, record_id, doctor_id):
+    resting_drawinfo = db.query(dbmodels.Resting.draw_info).filter(
+        (dbmodels.Resting.record_id == record_id) & (dbmodels.Resting.doctor_id == doctor_id)       
+    ).all()
+    return resting_drawinfo[0].draw_info
+
+def get_resting_result(db: Session, record_id, doctor_id):
+    resting_result = db.query(dbmodels.Resting.resting_result, dbmodels.Resting.rip_result).filter(
+        (dbmodels.Resting.record_id == record_id) & (dbmodels.Resting.doctor_id == doctor_id)      
+    ).all()
+    return resting_result[0].resting_result, resting_result[0].rip_result
+
+def update_resting_metric(db: Session, resting_metric, record_id, doctor_id):
+    updated_resting = db.query(dbmodels.Resting).filter(
+        (dbmodels.Resting.record_id == record_id) & (dbmodels.Resting.doctor_id == doctor_id)
+    ).update({"resting_metric":resting_metric})
+    db.commit()
+    db.flush()
+    return updated_resting
+
+def update_resting_drawinfo(db: Session, resting_draw_data, record_id, doctor_id):
+    updated_resting = db.query(dbmodels.Resting).filter(
+        (dbmodels.Resting.record_id == record_id) & (dbmodels.Resting.doctor_id == doctor_id)
+    ).update({"draw_info":resting_draw_data})
+    db.commit()
+    db.flush()
+    return updated_resting
+
+def update_resting_result(db: Session, resting_result, record_id, doctor_id):
+    updated_resting = db.query(dbmodels.Resting).filter(
+        (dbmodels.Resting.record_id == record_id) & (dbmodels.Resting.doctor_id == doctor_id)
+    ).update(resting_result)
+    db.commit()
+    db.flush()
+    return updated_resting
 
 """
 CRUD for Air
