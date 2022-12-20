@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Request, Form, File, UploadFile, Depends, FastAPI, HTTPException, Response
-from rsa import sign
 from sqlalchemy.orm import Session
 from auth.auth_handler import signJWT, signRefreshJWT, decodeJWT
 from auth.auth_bearer import JWTBearer 

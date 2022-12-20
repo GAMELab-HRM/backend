@@ -1,6 +1,5 @@
 from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from torch import det
 from .auth_handler import decodeJWT 
 
 

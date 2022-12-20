@@ -1,4 +1,4 @@
-from cvxpy import length
+
 from fastapi import APIRouter, Request, Form, File, UploadFile, Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 from utils import save_file, parsing_csv, parsing_csv_new
