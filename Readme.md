@@ -30,3 +30,13 @@ docker push docker.pkg.github.com/gamelab-hrm/backend/$PROJECT_NAME:$VERSION
 ## Vscode docker extension (great~!)
 https://code.visualstudio.com/docs/remote/container
 test fork
+
+## Build "mybackend" image 
+
+> one thing should be noticed, if you want to use docker. 
+> /api/db_model/database.py "127.0.0.1" should be replaced "postgres"
+
+```shell=
+cd api/ 
+docker build . -t mybackend 
+```
