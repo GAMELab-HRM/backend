@@ -27,6 +27,8 @@ def get_sensor_num(catheter_type: int) -> int:
         return [" P" + str(i+1) for i in range(20)]
     elif catheter_type == 6:
         return [" P" + str(i+1) for i in range(36)] 
+    elif catheter_type == 7:
+        return [" P" + str(i+1) for i in range(36)] 
     
 # 得到哪幾個swallow是有效的 (有些swallow是失敗的)
 def get_ws_names(df: pd.DataFrame,) -> Tuple[List, List, List, int]:
